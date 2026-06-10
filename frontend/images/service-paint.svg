@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="280" height="160" viewBox="0 0 280 160">
+  <rect width="280" height="160" rx="12" fill="#fce7f3"/>
+  <rect x="110" y="50" width="60" height="50" rx="4" fill="#db2777"/>
+  <rect x="125" y="40" width="30" height="15" fill="#9d174d"/>
+  <text x="140" y="130" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="bold" fill="#be185d">Painting</text>
+</svg>

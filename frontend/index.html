@@ -1,0 +1,2514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Customer Engagement Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+<script>
+  const API_BASE = (location.protocol === "file:" || location.port === "5500" || location.port === "3000")
+    ? "http://localhost:5000"
+    : (location.origin || "http://localhost:5000");
+</script>
+<style>
+:root{--primary:#4f46e5;--primary-h:#4338ca;--bg:#f8fafc;--text:#0f172a;--muted:#64748b;--border:#e2e8f0;--sw:260px;--shadow:0 4px 6px -1px rgba(0,0,0,.05),0 2px 4px -2px rgba(0,0,0,.05);--tr:all .22s cubic-bezier(.4,0,.2,1);}
+*{margin:0;padding:0;box-sizing:border-box;font-family:"Inter",sans-serif;}
+body{background:var(--bg);color:var(--text);display:flex;min-height:100vh;overflow-x:hidden;}
+/* ── AUTH — welcome landing + role portals ── */
+#auth-overlay{position:fixed;inset:0;background:linear-gradient(160deg,#f0f4f8 0%,#dbeafe 50%,#e2e8f0 100%);z-index:2000;overflow-y:auto;overflow-x:hidden;}
+.auth-landing{max-width:960px;width:100%;margin:0 auto;padding:20px 16px 32px;min-height:100%;display:flex;flex-direction:column;}
+.auth-landing-top{display:flex;flex-direction:column;align-items:flex-start;gap:12px;margin-bottom:16px;}
+.auth-welcome{font-size:clamp(1.25rem,4.5vw,2rem);font-weight:800;color:#1e293b;line-height:1.25;letter-spacing:-.5px;}
+.login-dropdown-wrap{position:relative;z-index:50;}
+.login-dropdown-btn{display:inline-flex;align-items:center;gap:8px;padding:10px 18px;background:linear-gradient(180deg,#4f46e5,#4338ca);color:#fff;border:none;border-radius:8px;font-weight:700;font-size:.9rem;cursor:pointer;box-shadow:0 4px 12px rgba(79,70,229,.35);}
+.login-dropdown-btn:hover{background:linear-gradient(180deg,#4338ca,#3730a3);}
+.login-dropdown-btn i{font-size:.75rem;transition:transform .2s;}
+.login-dropdown-wrap.open .login-dropdown-btn i{transform:rotate(180deg);}
+.login-dropdown-menu{position:absolute;top:calc(100% + 6px);left:0;min-width:200px;background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:0 12px 28px rgba(0,0,0,.12);overflow:hidden;}
+.login-dropdown-menu button{display:block;width:100%;padding:12px 16px;border:none;background:#fff;text-align:left;font-size:.88rem;font-weight:600;color:#334155;cursor:pointer;transition:background .15s;}
+.login-dropdown-menu button:hover{background:#f0f2ff;color:#4f46e5;}
+.login-dropdown-menu button+button{border-top:1px solid var(--border);}
+.marquee-section{margin:52px 0 20px;width:100%;overflow:hidden;border-radius:12px;background:#fff;border:1px solid var(--border);box-shadow:var(--shadow);}
+.marquee-track{display:flex;width:max-content;animation:marquee-rtl 40s linear infinite;}
+.marquee-track:hover{animation-play-state:paused;}
+.marquee-track img{height:120px;width:auto;margin:0 12px;border-radius:10px;object-fit:cover;flex-shrink:0;}
+@keyframes marquee-rtl{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+.portal-pick-hint{text-align:center;color:var(--muted);font-size:.9rem;padding:12px;margin-bottom:8px;}
+.portal-slot{width:100%;max-width:420px;margin:0 auto;}
+.portal-slot .portal-card{display:none;margin-bottom:0;}
+.portal-slot .portal-card.portal-active{display:block;}
+.portal-grid{display:none;}
+.portal-card{background:#fff;border-radius:6px;position:relative;box-shadow:0 8px 24px rgba(0,0,0,.12);overflow:visible;margin-bottom:12px;}
+.portal-card.portal-admin{border-bottom:10px solid #5b2c8e;}
+.portal-card.portal-provider{border-bottom:10px solid #e85d04;}
+.portal-card.portal-customer{border-bottom:10px solid #3498db;}
+.portal-hdr{color:#fff;padding:14px 18px;text-align:right;font-weight:700;font-size:1.05rem;letter-spacing:.3px;border-radius:6px 6px 0 0;}
+.portal-admin .portal-hdr{background:linear-gradient(180deg,#6b3fa0,#4a2373);}
+.portal-provider .portal-hdr{background:linear-gradient(180deg,#f97316,#d35400);}
+.portal-customer .portal-hdr{background:linear-gradient(180deg,#5dade2,#2980b9);}
+.portal-body{padding:18px 16px 56px;position:relative;min-height:210px;}
+.portal-body .plbl{display:block;color:#8b4513;font-weight:700;font-size:.88rem;margin-bottom:4px;}
+.portal-body .p-inp{width:100%;padding:8px 10px;border:1px solid #bbb;border-radius:2px;font-size:.9rem;margin-bottom:10px;background:#fff;}
+.portal-body .p-inp:focus{outline:none;border-color:#666;box-shadow:0 0 0 2px rgba(0,0,0,.08);}
+.portal-login-btn{position:absolute;bottom:14px;right:14px;padding:7px 22px;border-radius:6px;border:1px solid #888;background:linear-gradient(180deg,#fafafa,#d4d4d4);cursor:pointer;font-weight:700;font-size:.85rem;box-shadow:1px 2px 4px rgba(0,0,0,.15);}
+.portal-login-btn:hover{background:linear-gradient(180deg,#fff,#e0e0e0);}
+.portal-icon{position:absolute;bottom:-8px;left:10px;width:72px;height:72px;display:flex;align-items:center;justify-content:center;font-size:2.8rem;opacity:.92;pointer-events:none;}
+.portal-admin .portal-icon{color:#4a2373;}
+.portal-provider .portal-icon{color:#16a34a;}
+.portal-customer .portal-icon{color:#2980b9;}
+.portal-foot{text-align:center;padding:8px 12px 12px;font-size:.8rem;color:#555;}
+.portal-foot span{cursor:pointer;font-weight:700;text-decoration:underline;}
+.portal-admin .portal-foot span{color:#5b2c8e;}
+.portal-provider .portal-foot span{color:#e85d04;}
+.portal-customer .portal-foot span{color:#2980b9;}
+.portal-err{color:#b91c1c;background:#fef2f2;padding:8px;border-radius:4px;font-size:.78rem;margin-bottom:8px;display:none;border-left:3px solid #b91c1c;}
+.auth-modal{position:fixed;inset:0;background:rgba(15,23,42,.5);display:flex;justify-content:center;align-items:center;z-index:2100;padding:16px;overflow-y:auto;}
+.auth-modal-inner{background:#fff;width:100%;max-width:440px;padding:2rem;border-radius:16px;border:1px solid var(--border);box-shadow:0 25px 50px rgba(0,0,0,.15);max-height:92vh;overflow-y:auto;animation:slideUp .35s ease;}
+@keyframes slideUp{from{transform:translateY(16px);opacity:0}to{transform:translateY(0);opacity:1}}
+.auth-modal-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.2rem;padding-bottom:.8rem;border-bottom:1px solid var(--border);}
+.auth-modal-hdr h3{font-size:1.1rem;font-weight:700;}
+.auth-modal-close{border:none;background:#f1f5f9;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1.1rem;}
+.auth-modal-close:hover{background:#fee2e2;color:#ef4444;}
+.auth-header{text-align:center;margin-bottom:2rem;}
+.auth-icon{font-size:2.2rem;color:var(--primary);background:#f5f3ff;width:64px;height:64px;margin:0 auto 1.2rem;display:flex;align-items:center;justify-content:center;border-radius:16px;border:1px solid #ddd6fe;}
+.auth-sub{color:var(--muted);font-size:.875rem;margin-top:4px;}
+.fg{margin-bottom:1.2rem;}
+.fg label{display:block;margin-bottom:.5rem;font-weight:500;font-size:.85rem;}
+.fg label i{margin-right:6px;color:var(--muted);}
+.fg input,.fg textarea,.fg select{width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:8px;outline:none;font-size:.95rem;background:#f8fafc;transition:var(--tr);}
+.fg input:focus,.fg textarea:focus,.fg select:focus{border-color:var(--primary);background:#fff;box-shadow:0 0 0 4px rgba(79,70,229,.1);}
+.auth-btn{width:100%;padding:14px;border:none;border-radius:8px;background:var(--primary);color:#fff;cursor:pointer;font-weight:600;font-size:.95rem;display:flex;align-items:center;justify-content:center;gap:8px;transition:var(--tr);}
+.auth-btn:hover{background:var(--primary-h);transform:translateY(-1px);}
+.auth-sw{text-align:center;margin-top:1.5rem;font-size:.875rem;color:var(--muted);}
+.auth-sw span{color:var(--primary);cursor:pointer;font-weight:600;text-decoration:underline;}
+.err{color:#ef4444;background:#fef2f2;padding:10px;border-radius:6px;display:none;margin-bottom:1.2rem;font-size:.85rem;border-left:3px solid #ef4444;}
+.ok-msg{color:#15803d;background:#dcfce7;padding:10px;border-radius:6px;display:none;margin-bottom:1.2rem;font-size:.85rem;border-left:3px solid #15803d;}
+/* ── SIDEBAR ── */
+.sidebar{width:var(--sw);background:#fff;border-right:1px solid var(--border);position:fixed;height:100vh;display:flex;flex-direction:column;z-index:100;transition:transform .3s ease;}
+.sidebar.hidden-sb{transform:translateX(-100%);}
+.sb-head{padding:1.5rem 1.2rem;display:flex;gap:10px;align-items:center;border-bottom:1px solid var(--border);}
+.logo-ic{background:var(--primary);color:#fff;padding:9px;border-radius:10px;font-size:1.1rem;}
+.sb-head h2{font-size:1.1rem;font-weight:700;}
+.nav-links{list-style:none;padding:1rem .8rem;flex-grow:1;overflow-y:auto;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:8px;cursor:pointer;color:var(--muted);font-weight:500;transition:var(--tr);margin-bottom:4px;font-size:.9rem;}
+.nav-item:hover,.nav-item.active{background:#f0f2ff;color:var(--primary);}
+.nav-section{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);padding:10px 14px 4px;}
+.sb-foot{padding:1rem;border-top:1px solid var(--border);background:#fafafa;}
+.user-row{display:flex;align-items:center;gap:10px;}
+.user-row img{width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid var(--border);}
+.u-info{display:flex;flex-direction:column;overflow:hidden;flex-grow:1;}
+.u-name{font-weight:600;font-size:.88rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.u-role{font-size:.7rem;font-weight:700;text-transform:uppercase;color:var(--primary);}
+.u-id{font-size:.68rem;color:var(--muted);}
+#logout-btn{cursor:pointer;color:var(--muted);padding:8px;border-radius:6px;transition:var(--tr);}
+#logout-btn:hover{background:#fee2e2;color:#ef4444;}
+/* ── MAIN ── */
+.main-cont{margin-left:var(--sw);flex:1;padding:2rem 2.5rem;min-height:100vh;background:var(--bg);transition:margin .3s ease;width:calc(100% - var(--sw));}
+.main-cont.fw{margin-left:0;width:100%;}
+#dash-hdr{margin-bottom:2rem;}
+.hdr-left{display:flex;align-items:center;gap:1rem;}
+#page-title{font-size:1.6rem;font-weight:700;letter-spacing:-.5px;}
+.toggle-btn{padding:9px 12px;border:1px solid var(--border);background:#fff;border-radius:8px;cursor:pointer;}
+/* ── PAGE SECTIONS (admin pages) ── */
+.page-section{display:none;}
+.page-section.active-page{display:block;}
+/* ── GRID & CARDS ── */
+.grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:1.5rem;align-items:start;}
+.span2{grid-column:span 2;}
+.card{background:#fff;border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);overflow:hidden;width:100%;}
+.card-hdr{padding:1.1rem 1.4rem;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem;}
+.card-hdr h3{font-size:1rem;font-weight:600;display:flex;align-items:center;gap:8px;}
+/* ── STATS ── */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1rem;padding:1.2rem;}
+.stat-box{background:#f8fafc;border:1px solid var(--border);padding:1.2rem;border-radius:12px;display:flex;flex-direction:column;cursor:pointer;transition:var(--tr);}
+.stat-box:hover{transform:translateY(-2px);border-color:var(--primary);box-shadow:0 4px 12px rgba(79,70,229,.1);}
+.stat-box i{font-size:1.3rem;width:40px;height:40px;display:flex;align-items:center;justify-content:center;border-radius:10px;background:#fff;margin-bottom:.6rem;box-shadow:0 2px 4px rgba(0,0,0,.04);}
+.ic-blue{color:#2563eb;} .ic-indigo{color:#4f46e5;} .ic-green{color:#16a34a;} .ic-emerald{color:#059669;} .ic-yellow{color:#d97706;} .ic-red{color:#dc2626;} .ic-orange{color:#c2410c;} .ic-purple{color:#7c3aed;}
+.stat-lbl{font-size:.8rem;color:var(--muted);font-weight:500;}
+.stat-val{font-size:1.6rem;font-weight:700;margin-top:3px;}
+/* ── TABLES ── */
+.tbl-wrap{width:100%;overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:.88rem;min-width:500px;}
+th{background:#f8fafc;padding:12px 16px;font-weight:600;color:var(--muted);border-bottom:1px solid var(--border);white-space:nowrap;}
+td{padding:11px 16px;border-bottom:1px solid var(--border);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:#fafafa;}
+/* ── BADGES ── */
+.badge{padding:3px 9px;border-radius:20px;font-size:.72rem;font-weight:700;display:inline-flex;align-items:center;gap:3px;white-space:nowrap;}
+.bg-green{background:#dcfce7;color:#15803d;} .bg-yellow{background:#fef3c7;color:#92400e;} .bg-blue{background:#e0f2fe;color:#0369a1;} .bg-red{background:#fee2e2;color:#991b1b;} .bg-orange{background:#fff7ed;color:#c2410c;} .bg-purple{background:#f5f3ff;color:#6d28d9;}
+/* ── BUTTONS ── */
+.btn{padding:6px 12px;border:1px solid var(--border);background:#fff;border-radius:6px;cursor:pointer;font-size:.78rem;font-weight:600;transition:var(--tr);display:inline-flex;align-items:center;gap:5px;}
+.btn:hover{background:#f1f5f9;}
+.btn-primary{background:var(--primary);color:#fff;border-color:var(--primary);}
+.btn-primary:hover{background:var(--primary-h);}
+.btn-danger{background:#fff5f5;color:#ef4444;border-color:#fca5a5;}
+.btn-danger:hover{background:#ef4444;color:#fff;}
+.btn-warn{background:#fff7ed;color:#c2410c;border-color:#fed7aa;}
+.btn-warn:hover{background:#c2410c;color:#fff;}
+.btn-green{background:#f0fdf4;color:#15803d;border-color:#bbf7d0;}
+.btn-green:hover{background:#15803d;color:#fff;}
+.btn-chat{background:#f5f3ff;color:var(--primary);border-color:#ddd6fe;}
+.btn-chat:hover{background:var(--primary);color:#fff;}
+.btn-sm{padding:4px 10px;font-size:.73rem;}
+/* ── EMPLOYEE CARDS ── */
+.emp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1.2rem;padding:1.2rem;}
+.emp-card{border:1px solid var(--border);border-radius:12px;padding:1.4rem;background:#fff;text-align:center;transition:var(--tr);cursor:pointer;position:relative;}
+.emp-card:hover{transform:translateY(-3px);border-color:var(--primary);box-shadow:0 8px 20px rgba(79,70,229,.1);}
+.emp-photo{width:72px;height:72px;border-radius:50%;object-fit:cover;border:3px solid var(--border);margin:0 auto .8rem;}
+.emp-name{font-weight:700;font-size:1rem;margin-bottom:2px;}
+.emp-service{font-size:.78rem;color:var(--primary);font-weight:600;margin-bottom:.4rem;}
+.emp-contact{font-size:.78rem;color:var(--muted);}
+.emp-status{position:absolute;top:12px;right:12px;}
+.online-dot{width:10px;height:10px;border-radius:50%;background:#22c55e;display:inline-block;box-shadow:0 0 0 2px #fff,0 0 0 3px #22c55e;}
+.offline-dot{width:10px;height:10px;border-radius:50%;background:#94a3b8;display:inline-block;}
+/* ── SERVICES MARKETPLACE ── */
+.svc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1.2rem;padding:1.2rem;}
+.svc-card{border:1px solid var(--border);border-radius:12px;padding:1.5rem;text-align:center;background:#fff;transition:var(--tr);display:flex;flex-direction:column;height:100%;}
+.svc-card:hover{transform:translateY(-3px);box-shadow:0 8px 20px rgba(0,0,0,.06);border-color:var(--primary);}
+.svc-card i{font-size:2rem;color:var(--primary);margin-bottom:1rem;}
+.svc-card h4{font-size:1rem;font-weight:600;margin-bottom:.4rem;}
+.svc-price{font-size:.95rem;font-weight:700;color:var(--primary);margin-bottom:.6rem;}
+.svc-desc{color:var(--muted);font-size:.83rem;margin-bottom:1.2rem;line-height:1.45;flex-grow:1;}
+/* ── SEARCH ── */
+.search-wrap{position:relative;}
+.search-wrap i{position:absolute;top:50%;left:12px;transform:translateY(-50%);color:var(--muted);font-size:.85rem;}
+.search-inp{padding:9px 12px 9px 34px;border:1px solid var(--border);border-radius:8px;outline:none;font-size:.88rem;background:#f8fafc;min-width:220px;transition:var(--tr);}
+.search-inp:focus{border-color:var(--primary);background:#fff;}
+.suggest-box{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid var(--border);border-radius:8px;margin-top:4px;z-index:200;box-shadow:0 8px 15px rgba(0,0,0,.06);max-height:160px;overflow-y:auto;}
+.suggest-item{padding:9px 12px;cursor:pointer;font-size:.83rem;}
+.suggest-item:hover{background:#f1f5f9;color:var(--primary);}
+/* ── MODALS ── */
+.modal-ov{position:fixed;inset:0;background:rgba(15,23,42,.45);backdrop-filter:blur(4px);display:none;justify-content:center;align-items:center;z-index:3000;padding:20px;}
+.modal-box{background:#fff;width:100%;max-width:520px;padding:1.8rem;border-radius:16px;box-shadow:0 25px 50px -12px rgba(0,0,0,.12);animation:mIn .3s cubic-bezier(.34,1.56,.64,1);max-height:92vh;overflow-y:auto;}
+.modal-box.wide{max-width:700px;}
+@keyframes mIn{from{transform:scale(.95);opacity:0}to{transform:scale(1);opacity:1}}
+.m-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.4rem;border-bottom:1px solid var(--border);padding-bottom:.9rem;}
+.m-hdr h3{font-size:1.1rem;font-weight:700;}
+.close-btn{border:none;background:#f1f5f9;font-size:1.1rem;width:30px;height:30px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.close-btn:hover{background:#e2e8f0;color:#ef4444;}
+/* ── EMPLOYEE PROFILE MODAL ── */
+.emp-profile-head{display:flex;gap:1.2rem;align-items:center;margin-bottom:1.4rem;padding:1.2rem;background:#f8fafc;border-radius:12px;border:1px solid var(--border);}
+.emp-profile-photo{width:90px;height:90px;border-radius:50%;object-fit:cover;border:3px solid var(--primary);}
+.ep-info h2{font-size:1.2rem;font-weight:700;margin-bottom:3px;}
+.ep-info .svc-tag{display:inline-block;background:#f0f2ff;color:var(--primary);font-size:.75rem;font-weight:700;padding:3px 10px;border-radius:20px;margin-bottom:6px;}
+.ep-info p{font-size:.84rem;color:var(--muted);}
+.ep-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:1.2rem;}
+.ep-tab{padding:9px 18px;cursor:pointer;font-size:.85rem;font-weight:600;color:var(--muted);border-bottom:2px solid transparent;transition:var(--tr);}
+.ep-tab.active{color:var(--primary);border-bottom-color:var(--primary);}
+.ep-pane{display:none;}
+.ep-pane.active{display:block;}
+/* ── CHAT (employee profile) ── */
+.ep-chat-wrap{display:flex;flex-direction:column;height:340px;}
+.chat-hist{flex-grow:1;overflow-y:auto;border:1px solid var(--border);border-radius:8px;padding:.8rem;background:#f8fafc;display:flex;flex-direction:column;gap:10px;margin-bottom:.8rem;}
+.bubble{max-width:74%;padding:9px 13px;border-radius:12px;font-size:.84rem;line-height:1.45;word-wrap:break-word;}
+.bubble.sent{background:var(--primary);color:#fff;align-self:flex-end;border-bottom-right-radius:2px;}
+.bubble.recv{background:#fff;color:var(--text);align-self:flex-start;border:1px solid var(--border);border-bottom-left-radius:2px;}
+.chat-time{font-size:.65rem;opacity:.75;margin-top:3px;text-align:right;}
+.chat-row{display:flex;gap:8px;}
+.chat-row input{flex-grow:1;padding:10px;border:1px solid var(--border);border-radius:8px;outline:none;font-size:.88rem;}
+.chat-row input:focus{border-color:var(--primary);}
+/* ── CALL UI ── */
+.call-controls{display:flex;gap:10px;justify-content:center;margin-bottom:.8rem;}
+.call-btn{width:46px;height:46px;border-radius:50%;border:none;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:var(--tr);}
+.call-btn.audio{background:#e0f2fe;color:#0369a1;}
+.call-btn.audio:hover{background:#0369a1;color:#fff;}
+.call-btn.video{background:#f5f3ff;color:var(--primary);}
+.call-btn.video:hover{background:var(--primary);color:#fff;}
+/* Ringing pulse on call box */
+@keyframes callPulse{0%,100%{box-shadow:0 0 0 0 rgba(79,70,229,.5);}70%{box-shadow:0 0 0 18px rgba(79,70,229,0);}}
+.call-avatar.ringing-pulse{animation:callPulse 1.4s infinite;}
+/* ── FEEDBACK / REVIEWS ── */
+.review-section{padding:1rem 1.2rem;border-top:1px solid var(--border);background:#fafafa;}
+.review-section h4{font-size:.88rem;font-weight:700;color:var(--text);margin-bottom:.7rem;display:flex;align-items:center;gap:6px;}
+.review-card{background:#fff;border:1px solid var(--border);border-radius:10px;padding:.9rem 1rem;margin-bottom:.7rem;transition:var(--tr);}
+.review-card:hover{border-color:#c7d2fe;}
+.review-meta{display:flex;align-items:center;gap:.5rem;margin-bottom:.4rem;flex-wrap:wrap;}
+.review-author{font-weight:700;font-size:.82rem;}
+.review-svc{font-size:.72rem;background:#f0f2ff;color:var(--primary);padding:2px 8px;border-radius:20px;font-weight:600;}
+.review-date{font-size:.7rem;color:var(--muted);margin-left:auto;}
+.stars-display{color:#f59e0b;font-size:.85rem;letter-spacing:1px;}
+.stars-display .empty{color:#e2e8f0;}
+.review-text{font-size:.83rem;color:var(--text);line-height:1.5;margin:.35rem 0;}
+.like-row{display:flex;align-items:center;gap:.8rem;margin-top:.4rem;}
+.like-btn{background:none;border:1px solid var(--border);border-radius:20px;padding:3px 10px;cursor:pointer;font-size:.8rem;display:inline-flex;align-items:center;gap:4px;transition:var(--tr);color:var(--muted);}
+.like-btn:hover{border-color:#4f46e5;color:#4f46e5;background:#f0f2ff;}
+.like-btn.liked{background:#e0f2fe;border-color:#38bdf8;color:#0369a1;}
+.like-btn.disliked{background:#fee2e2;border-color:#fca5a5;color:#dc2626;}
+.like-count{font-weight:700;}
+/* Star rating input */
+.star-input{display:flex;gap:4px;margin-bottom:.6rem;}
+.star-input i{font-size:1.4rem;color:#e2e8f0;cursor:pointer;transition:color .15s;}
+.star-input i.active{color:#f59e0b;}
+.star-input i:hover,.star-input i.hover{color:#fbbf24;}
+/* Overall rating summary bar on service card */
+.svc-rating-bar{display:flex;align-items:center;gap:6px;margin:.3rem 0 .6rem;font-size:.78rem;}
+.svc-avg-stars{color:#f59e0b;font-size:.82rem;}
+.svc-review-count{color:var(--muted);font-size:.72rem;}
+/* Reviews section in service card */
+.svc-card-reviews{border-top:1px solid var(--border);margin-top:.8rem;padding-top:.8rem;}
+/* ── INCOMING CALL OVERLAY ── */
+#call-overlay{position:fixed;inset:0;background:rgba(15,23,42,.75);display:none;justify-content:center;align-items:center;z-index:9000;}
+.call-box{background:#1e293b;border-radius:24px;padding:2.5rem 3rem;text-align:center;color:#fff;min-width:280px;box-shadow:0 30px 60px rgba(0,0,0,.4);}
+.call-avatar{width:90px;height:90px;border-radius:50%;object-fit:cover;border:4px solid rgba(255,255,255,.2);margin:0 auto 1rem;}
+.call-name{font-size:1.3rem;font-weight:700;margin-bottom:.3rem;}
+.call-status{font-size:.85rem;color:#94a3b8;margin-bottom:1.8rem;}
+.call-actions{display:flex;gap:1.5rem;justify-content:center;}
+.call-act-btn{width:62px;height:62px;border-radius:50%;border:none;cursor:pointer;font-size:1.3rem;display:flex;align-items:center;justify-content:center;transition:var(--tr);}
+.call-act-btn.accept{background:#22c55e;}
+.call-act-btn.accept:hover{background:#16a34a;}
+.call-act-btn.decline{background:#ef4444;}
+.call-act-btn.decline:hover{background:#dc2626;}
+@keyframes ring{0%,100%{transform:scale(1);}50%{transform:scale(1.07);}}
+.ringing{animation:ring 1s infinite;}
+/* ── ACTIVE CALL UI ── */
+#active-call-bar{position:fixed;bottom:20px;right:20px;background:#1e293b;color:#fff;border-radius:16px;padding:.8rem 1.2rem;display:none;align-items:center;gap:12px;z-index:8000;box-shadow:0 8px 24px rgba(0,0,0,.3);}
+.ac-timer{font-size:.85rem;font-weight:600;min-width:50px;}
+.ac-end{background:#ef4444;border:none;color:#fff;border-radius:8px;padding:6px 14px;cursor:pointer;font-size:.8rem;font-weight:600;}
+/* ── COMPLAINT ── */
+.cmp-tag{display:inline-flex;align-items:center;gap:3px;padding:3px 8px;border-radius:20px;font-size:.7rem;font-weight:700;background:#fff0f0;color:#dc2626;border:1px solid #fca5a5;}
+/* ── MISC ── */
+.page-empty{padding:3rem;text-align:center;color:var(--muted);}
+.page-empty i{font-size:3rem;margin-bottom:1rem;display:block;}
+.hidden{display:none!important;}
+.info-row{display:flex;gap:.5rem;margin-bottom:.5rem;font-size:.87rem;}
+.info-row strong{min-width:110px;color:var(--muted);}
+/* ── OTP INPUT ── */
+#otp-inp,#fp-otp-inp{width:100%;padding:14px;border:2px solid var(--border);border-radius:8px;outline:none;background:#f8fafc;transition:var(--tr);}
+#otp-inp:focus,#fp-otp-inp:focus{border-color:var(--primary);background:#fff;box-shadow:0 0 0 4px rgba(79,70,229,.1);}
+.otp-timer{font-size:.78rem;color:var(--muted);text-align:center;margin-top:.5rem;}
+@media(max-width:1024px){.grid2{grid-template-columns:1fr;}.span2{grid-column:span 1;}}
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%);}.sidebar.mob-open{transform:translateX(0);}
+  .main-cont{margin-left:0;padding:1.2rem;}.fw{margin-left:0!important;width:100%!important;}
+  .auth-landing{padding:14px 12px 24px;}
+  .marquee-section{margin-top:8px;}
+  .marquee-track img{height:90px;margin:0 8px;}
+  .login-dropdown-menu{min-width:min(200px,calc(100vw - 32px));}
+  .portal-body{min-height:190px;}
+}
+@media(max-width:480px){
+  .marquee-track img{height:72px;}
+  .login-dropdown-btn{width:100%;justify-content:center;}
+}
+</style>
+</head>
+<body>
+
+<!-- AUTH — welcome + login dropdown -->
+<div id="auth-overlay">
+
+  <div id="auth-landing" class="auth-landing">
+    <div class="auth-landing-top">
+      <h1 class="auth-welcome">Welcome to Customer Service Provider</h1>
+      <div class="login-dropdown-wrap" id="login-dropdown-wrap">
+        <button type="button" class="login-dropdown-btn" id="login-dropdown-btn" aria-haspopup="true" aria-expanded="false">
+          Login <i class="fas fa-chevron-down"></i>
+        </button>
+        <div id="login-dropdown-menu" class="login-dropdown-menu hidden" role="menu">
+          <button type="button" role="menuitem" data-portal="admin">Administrator</button>
+          <button type="button" role="menuitem" data-portal="provider">Service Provider</button>
+          <button type="button" role="menuitem" data-portal="customer">Customer</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="marquee-section" aria-hidden="true">
+      <div class="marquee-track" id="marquee-track">
+        <img src="images/service-plumber.svg" alt="Plumbing services"/>
+        <img src="images/service-electric.svg" alt="Electrician services"/>
+        <img src="images/service-cleaning.svg" alt="Cleaning services"/>
+        <img src="images/service-paint.svg" alt="Painting services"/>
+        <img src="images/service-garden.svg" alt="Gardening services"/>
+        <img src="images/service-support.svg" alt="Customer support"/>
+        <img src="images/service-plumber.svg" alt=""/>
+        <img src="images/service-electric.svg" alt=""/>
+        <img src="images/service-cleaning.svg" alt=""/>
+        <img src="images/service-paint.svg" alt=""/>
+        <img src="images/service-garden.svg" alt=""/>
+        <img src="images/service-support.svg" alt=""/>
+      </div>
+    </div>
+
+    <p id="portal-pick-hint" class="portal-pick-hint">Select <strong>Login</strong> and choose your role to open the sign-in page.</p>
+
+    <div id="portal-slot" class="portal-slot hidden">
+    <!-- Administrator -->
+    <div class="portal-card portal-admin" id="portal-admin">
+      <div class="portal-hdr">Administrator Login</div>
+      <div class="portal-body">
+        <form id="admin-login-form">
+          <div id="admin-l-err" class="portal-err"></div>
+          <label class="plbl" for="admin-l-email">User Name :</label>
+          <input class="p-inp" type="email" id="admin-l-email" placeholder="Enter your E-mail" required autocomplete="username"/>
+          <label class="plbl" for="admin-l-pass">Password :</label>
+          <input class="p-inp" type="password" id="admin-l-pass" placeholder="••••••••" required autocomplete="current-password"/>
+          <button type="submit" class="portal-login-btn">Login</button>
+        </form>
+        <div class="portal-icon"><i class="fas fa-user-shield"></i></div>
+      </div>
+      <div class="portal-foot">New administrator? <span data-signup="admin">Sign Up</span></div>
+    </div>
+
+    <!-- Service Provider -->
+    <div class="portal-card portal-provider" id="portal-provider">
+      <div class="portal-hdr">Service Provider Login</div>
+      <div class="portal-body">
+        <form id="prov-login-form">
+          <div id="prov-l-err" class="portal-err"></div>
+          <label class="plbl" for="prov-l-email">User Name :</label>
+          <input class="p-inp" type="email" id="prov-l-email" placeholder="Enter your E-mail" required autocomplete="username"/>
+          <label class="plbl" for="prov-l-pass">Password :</label>
+          <input class="p-inp" type="password" id="prov-l-pass" placeholder="••••••••" required autocomplete="current-password"/>
+          <button type="submit" class="portal-login-btn">Login</button>
+        </form>
+        <div class="portal-icon"><i class="fas fa-user-gear"></i></div>
+      </div>
+      <div class="portal-foot">New service provider? <span data-signup="provider">Sign Up</span></div>
+    </div>
+
+    <!-- Customer -->
+    <div class="portal-card portal-customer" id="portal-customer">
+      <div class="portal-hdr">Customer Login</div>
+      <div class="portal-body">
+        <form id="cust-login-form">
+          <div id="cust-l-err" class="portal-err"></div>
+          <label class="plbl" for="cust-l-email">User Name :</label>
+          <input class="p-inp" type="email" id="cust-l-email" placeholder="Enter your E-mail" required autocomplete="username"/>
+          <label class="plbl" for="cust-l-pass">Password :</label>
+          <input class="p-inp" type="password" id="cust-l-pass" placeholder="••••••••" required autocomplete="current-password"/>
+          <button type="submit" class="portal-login-btn">Login</button>
+        </form>
+        <div class="portal-icon"><i class="fas fa-users"></i></div>
+      </div>
+      <div class="portal-foot">
+        <span id="cust-forgot-link" style="margin-right:10px;">Forgot password?</span>
+        New customer? <span data-signup="customer">Sign Up</span>
+      </div>
+    </div>
+    </div><!-- /portal-slot -->
+  </div><!-- /auth-landing -->
+
+  <!-- Customer sign up (Gmail OTP) -->
+  <div id="cust-signup-modal" class="auth-modal hidden">
+    <div class="auth-modal-inner">
+      <div class="auth-modal-hdr"><h3>Customer Sign Up</h3><button type="button" class="auth-modal-close" data-close="cust-signup">&times;</button></div>
+      <p class="auth-sub" style="text-align:center;margin:-.5rem 0 1rem;">Use your personal Gmail — OTP will be sent there</p>
+      <div id="signup-step1">
+        <form id="signup-form">
+          <div id="s-err" class="err"></div>
+          <div id="s-ok" class="ok-msg"></div>
+          <div class="fg"><label><i class="far fa-user"></i>Full Name</label><input type="text" id="s-name" placeholder="Enter Your Full Name" required/></div>
+          <div class="fg">
+            <label><i class="far fa-envelope"></i>Gmail Address</label>
+            <input type="email" id="s-email" placeholder="your personal@gmail.com" required autocomplete="email"/>
+            <div style="font-size:.75rem;color:var(--muted);margin-top:4px;">Only @gmail.com — OTP sent to verify your account.</div>
+          </div>
+          <div class="fg"><label><i class="fas fa-lock"></i>Password</label><input type="password" id="s-pass" placeholder="Create password" required/></div>
+          <button type="submit" class="auth-btn" id="send-otp-btn">Send OTP to Gmail <i class="fas fa-paper-plane"></i></button>
+        </form>
+      </div>
+      <div id="signup-step2" style="display:none;">
+        <div style="text-align:center;margin-bottom:1rem;">
+          <div style="font-size:2rem;margin-bottom:.4rem;">📧</div>
+          <div style="font-weight:700;">Check your Gmail</div>
+          <div id="otp-sent-label" style="font-size:.82rem;color:var(--muted);margin-top:.4rem;"></div>
+          <div style="font-size:.78rem;color:var(--muted);margin-top:.3rem;">Enter the 6-digit OTP from your inbox.</div>
+        </div>
+        <div id="otp-err" class="err"></div>
+        <div class="fg">
+          <label>Enter OTP</label>
+          <input type="text" id="otp-inp" placeholder="6-digit code" maxlength="6" style="letter-spacing:6px;font-size:1.2rem;font-weight:700;text-align:center;" autocomplete="off"/>
+        </div>
+        <button type="button" class="auth-btn" onclick="verifySignupOTP()">Verify &amp; Create Account <i class="fas fa-check"></i></button>
+        <div style="text-align:center;margin-top:.8rem;font-size:.82rem;color:var(--muted);">
+          Didn't receive it? <span id="resend-btn" style="color:#2980b9;cursor:pointer;font-weight:600;display:none;" onclick="resendOTP()">Resend OTP</span>
+          <span id="resend-timer"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Administrator sign up -->
+  <div id="admin-signup-modal" class="auth-modal hidden">
+    <div class="auth-modal-inner">
+      <div class="auth-modal-hdr"><h3>Administrator Sign Up</h3><button type="button" class="auth-modal-close" data-close="admin-signup">&times;</button></div>
+      <form id="admin-signup-form">
+        <div id="admin-s-err" class="err"></div>
+        <div id="admin-s-ok" class="ok-msg"></div>
+        <div class="fg"><label>Full Name</label><input type="text" id="admin-s-name" required/></div>
+        <div class="fg"><label>Email</label><input type="email" id="admin-s-email" placeholder="admin@company.com" required/></div>
+        <div class="fg"><label>Password</label><input type="password" id="admin-s-pass" required minlength="6"/></div>
+        <div class="fg"><label>Confirm Password</label><input type="password" id="admin-s-pass2" required minlength="6"/></div>
+        <button type="submit" class="auth-btn" style="background:#5b2c8e;">Create Administrator Account</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Service Provider sign up -->
+  <div id="prov-signup-modal" class="auth-modal hidden">
+    <div class="auth-modal-inner">
+      <div class="auth-modal-hdr"><h3>Service Provider Sign Up</h3><button type="button" class="auth-modal-close" data-close="prov-signup">&times;</button></div>
+      <form id="prov-signup-form">
+        <div id="prov-s-err" class="err"></div>
+        <div id="prov-s-ok" class="ok-msg"></div>
+        <div class="fg"><label>Full Name</label><input type="text" id="prov-s-name" required/></div>
+        <div class="fg"><label>Email</label><input type="email" id="prov-s-email" placeholder="name@cep.com" required/></div>
+        <div class="fg"><label>Password</label><input type="password" id="prov-s-pass" required minlength="6"/></div>
+        <div class="fg"><label>Confirm Password</label><input type="password" id="prov-s-pass2" required minlength="6"/></div>
+        <button type="submit" class="auth-btn" style="background:#e85d04;">Create Provider Account</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Customer forgot password -->
+  <div id="cust-forgot-modal" class="auth-modal hidden">
+    <div class="auth-modal-inner">
+      <div class="auth-modal-hdr"><h3>Reset Password</h3><button type="button" class="auth-modal-close" data-close="cust-forgot">&times;</button></div>
+      <div id="fp-step1">
+        <div id="fp-err" class="err"></div>
+        <div class="fg"><label>Your Registered Gmail</label><input type="email" id="fp-email" placeholder="name@gmail.com"/></div>
+        <button type="button" class="auth-btn" onclick="sendForgotOTP()">Send Reset OTP <i class="fas fa-paper-plane"></i></button>
+      </div>
+      <div id="fp-step2" style="display:none;">
+        <div id="fp-sent-label" style="font-size:.85rem;color:#2980b9;font-weight:600;margin-bottom:1rem;text-align:center;"></div>
+        <div id="fp-otp-err" class="err"></div>
+        <div class="fg"><label>OTP Code</label><input type="text" id="fp-otp-inp" maxlength="6" placeholder="6-digit OTP" style="text-align:center;font-weight:700;letter-spacing:4px;"/></div>
+        <div class="fg"><label>New Password</label><input type="password" id="fp-new-pass"/></div>
+        <div class="fg"><label>Confirm Password</label><input type="password" id="fp-conf-pass"/></div>
+        <button type="button" class="auth-btn" onclick="resetPassword()">Reset Password</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- SIDEBAR -->
+<nav class="sidebar hidden-sb" id="main-sidebar">
+  <div class="sb-head">
+    <div class="logo-ic"><i class="fas fa-shield-halved"></i></div>
+    <h2>CEP Platform</h2>
+  </div>
+  <ul class="nav-links" id="nav-list"></ul>
+  <div class="sb-foot">
+    <div class="user-row">
+      <img id="u-avatar" src="https://ui-avatars.com/api/?name=User" alt=""/>
+      <div class="u-info">
+        <span class="u-name" id="u-name">Loading...</span>
+        <span class="u-role" id="u-role">Role</span>
+        <span class="u-id" id="u-id">ID</span>
+      </div>
+      <i class="fas fa-right-from-bracket" id="logout-btn" title="Logout"></i>
+    </div>
+  </div>
+</nav>
+
+<!-- MAIN AREA -->
+<main class="main-cont fw" id="main-cont">
+  <header id="dash-hdr">
+    <div class="hdr-left">
+      <button id="sb-toggle" class="toggle-btn"><i class="fas fa-bars"></i></button>
+      <h1 id="page-title">Dashboard</h1>
+    </div>
+  </header>
+
+  <!-- ══════════════ ADMIN VIEW ══════════════ -->
+  <div id="admin-view" class="hidden">
+
+    <!-- PAGE: Overview -->
+    <div id="pg-overview" class="page-section active-page">
+      <div class="stats-row" style="margin-bottom:1.5rem;">
+        <div class="stat-box" onclick="showAdminPage('pg-customers')"><i class="fas fa-users ic-blue"></i><span class="stat-lbl">Total Customers</span><span class="stat-val" id="st-customers">0</span></div>
+        <div class="stat-box" onclick="showAdminPage('pg-employees')"><i class="fas fa-user-tie ic-indigo"></i><span class="stat-lbl">Employees</span><span class="stat-val" id="st-employees">0</span></div>
+        <div class="stat-box" onclick="showAdminPage('pg-pending')"><i class="fas fa-hourglass-half ic-yellow"></i><span class="stat-lbl">Pending Work</span><span class="stat-val" id="st-pending">0</span></div>
+        <div class="stat-box" onclick="showAdminPage('pg-completed')"><i class="fas fa-circle-check ic-green"></i><span class="stat-lbl">Completed Work</span><span class="stat-val" id="st-completed">0</span></div>
+        <div class="stat-box" onclick="showAdminPage('pg-pay-success')"><i class="fas fa-money-bill-wave ic-emerald"></i><span class="stat-lbl">Payment Success</span><span class="stat-val" id="st-pay-ok">0</span></div>
+        <div class="stat-box" onclick="showAdminPage('pg-pay-pending')"><i class="fas fa-clock ic-orange"></i><span class="stat-lbl">Payment Pending</span><span class="stat-val" id="st-pay-pend">0</span></div>
+        <div class="stat-box" onclick="showAdminPage('pg-complaints')"><i class="fas fa-triangle-exclamation ic-red"></i><span class="stat-lbl">Open Complaints</span><span class="stat-val" id="st-complaints">0</span></div>
+      </div>
+      <!-- Recent activity snapshot -->
+      <div class="card">
+        <div class="card-hdr"><h3><i class="fas fa-activity ic-blue"></i>Recent Service Requests</h3></div>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>ID</th><th>Customer</th><th>Service</th><th>Payment</th><th>Pay Status</th><th>Job Status</th></tr></thead>
+          <tbody id="overview-recent"></tbody>
+        </table></div>
+      </div>
+      <!-- Public Reviews Summary for Admin -->
+      <div class="card" style="margin-top:1.5rem;" id="admin-reviews-card">
+        <div class="card-hdr"><h3><i class="fas fa-star ic-yellow"></i>Public Service Reviews</h3></div>
+        <div id="admin-reviews-container" style="padding:.5rem 0;"></div>
+      </div>
+    </div>
+
+    <!-- PAGE: Employees -->
+    <div id="pg-employees" class="page-section">
+      <div class="card">
+        <div class="card-hdr"><h3><i class="fas fa-user-tie ic-indigo"></i>Employee Directory</h3><span style="font-size:.8rem;color:var(--muted);">Click a card to view profile, chat & call</span></div>
+        <div class="emp-grid" id="emp-grid"></div>
+      </div>
+    </div>
+
+    <!-- PAGE: Customers -->
+    <div id="pg-customers" class="page-section">
+      <div class="card">
+        <div class="card-hdr"><h3><i class="fas fa-users ic-blue"></i>All Customers & Their Requests</h3></div>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>Customer Name</th><th>Email</th><th>Phone</th><th>Address</th><th>Service</th><th>Request ID</th><th>Payment</th><th>Pay Status</th><th>Job Status</th><th>Date</th></tr></thead>
+          <tbody id="customers-tbody"></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- PAGE: Pending Work -->
+    <div id="pg-pending" class="page-section">
+      <div class="card">
+        <div class="card-hdr"><h3><i class="fas fa-hourglass-half ic-yellow"></i>Pending Work</h3></div>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>Request ID</th><th>Customer</th><th>Service</th><th>Address</th><th>Payment</th><th>Pay Status</th><th>Job Status</th><th>Date</th></tr></thead>
+          <tbody id="pending-tbody"></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- PAGE: Completed Work -->
+    <div id="pg-completed" class="page-section">
+      <div class="card">
+        <div class="card-hdr"><h3><i class="fas fa-circle-check ic-green"></i>Completed Work</h3></div>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>Request ID</th><th>Customer</th><th>Service</th><th>Address</th><th>Payment</th><th>Pay Status</th><th>Date</th></tr></thead>
+          <tbody id="completed-tbody"></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- PAGE: Payment Success -->
+    <div id="pg-pay-success" class="page-section">
+      <div class="card">
+        <div class="card-hdr"><h3><i class="fas fa-circle-check ic-green"></i>Payment Success</h3></div>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>Request ID</th><th>Customer</th><th>Service</th><th>Payment Method</th><th>Job Status</th><th>Date</th></tr></thead>
+          <tbody id="pay-success-tbody"></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- PAGE: Payment Pending -->
+    <div id="pg-pay-pending" class="page-section">
+      <div class="card">
+        <div class="card-hdr"><h3><i class="fas fa-clock ic-orange"></i>Payment Pending (Cash on Delivery)</h3></div>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>Request ID</th><th>Customer</th><th>Phone</th><th>Address</th><th>Service</th><th>Job Status</th><th>Date</th></tr></thead>
+          <tbody id="pay-pending-tbody"></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- PAGE: Complaints -->
+    <div id="pg-complaints" class="page-section">
+      <div class="card">
+        <div class="card-hdr"><h3><i class="fas fa-triangle-exclamation ic-red"></i>Customer Complaints</h3></div>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>ID</th><th>Customer</th><th>Service</th><th>Description</th><th>Date</th><th>Status</th><th>Action</th></tr></thead>
+          <tbody id="complaints-tbody"></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- PAGE: Reviews (public feedback — visible to admin) -->
+    <div id="pg-reviews" class="page-section">
+      <div class="card">
+        <div class="card-hdr">
+          <h3><i class="fas fa-star ic-yellow"></i>All Service Reviews &amp; Feedback</h3>
+          <span style="font-size:.8rem;color:var(--muted);">Public reviews submitted by customers — visible to all</span>
+        </div>
+        <div id="admin-reviews-container" style="padding:.5rem 0;"></div>
+      </div>
+    </div>
+
+  </div><!-- /admin-view -->
+
+  <!-- ══════════════ PROVIDER VIEW ══════════════ -->
+  <div id="provider-view" class="hidden">
+    <div class="stats-row" style="margin-bottom:1.5rem;">
+      <div class="stat-box"><i class="fas fa-clipboard-list ic-blue"></i><span class="stat-lbl">Assigned Jobs</span><span class="stat-val" id="pv-jobs">0</span></div>
+      <div class="stat-box"><i class="fas fa-star ic-emerald"></i><span class="stat-lbl">Avg Rating</span><span class="stat-val">4.9</span></div>
+      <div class="stat-box"><i class="fas fa-wallet ic-green"></i><span class="stat-lbl">Earnings</span><span class="stat-val" id="pv-earn">$0</span></div>
+    </div>
+    <div class="card" style="margin-bottom:1.5rem;">
+      <div class="card-hdr"><h3><i class="fas fa-business-time ic-indigo"></i>Active Client Agreements</h3></div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Client</th><th>Service</th><th>Date</th><th>Payment</th><th>Pay Status</th><th>Job Status</th><th>Actions</th></tr></thead>
+        <tbody id="pv-orders"></tbody>
+      </table></div>
+    </div>
+    <!-- Provider: public reviews for their service -->
+    <div class="card" style="margin-bottom:1.5rem;">
+      <div class="card-hdr"><h3><i class="fas fa-star ic-yellow"></i>Customer Reviews — My Service</h3></div>
+      <div id="prov-reviews-container" style="padding:.5rem 0;"></div>
+    </div>
+
+    <div class="card" id="pv-complaints-card">
+      <div class="card-hdr"><h3><i class="fas fa-bell ic-orange"></i>Forwarded Complaints — Action Required</h3></div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>ID</th><th>Customer</th><th>Service</th><th>Issue</th><th>Admin Note</th><th>Status</th><th>Action</th></tr></thead>
+        <tbody id="pv-complaints"></tbody>
+      </table></div>
+    </div>
+  </div>
+
+  <!-- ══════════════ CUSTOMER VIEW ══════════════ -->
+  <div id="customer-view" class="hidden">
+    <div class="card" id="cust-mkt" style="margin-bottom:1.5rem;">
+      <div class="card-hdr">
+        <h3><i class="fas fa-store ic-blue"></i>Services Marketplace</h3>
+        <div class="search-wrap">
+          <i class="fas fa-search"></i>
+          <input type="text" id="svc-search" class="search-inp" placeholder="Search services..."/>
+          <div id="suggest-box" class="suggest-box hidden"></div>
+        </div>
+      </div>
+      <div class="svc-grid" id="svc-grid"></div>
+    </div>
+    <div class="card" id="cust-reqs" style="margin-bottom:1.5rem;">
+      <div class="card-hdr"><h3><i class="fas fa-receipt ic-indigo"></i>My Bookings</h3></div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>ID</th><th>Service</th><th>Payment</th><th>Status</th><th>Date</th><th>Action</th></tr></thead>
+        <tbody id="cust-orders"></tbody>
+      </table></div>
+    </div>
+    <!-- FEEDBACK SECTION — visible to all roles -->
+    <div class="card" id="cust-feedback" style="margin-bottom:1.5rem;">
+      <div class="card-hdr">
+        <h3><i class="fas fa-star ic-yellow"></i>Service Reviews &amp; Feedback</h3>
+        <button class="btn btn-primary btn-sm" id="write-review-btn" onclick="openReviewForm()" style="display:none;"><i class="fas fa-pen"></i> Write a Review</button>
+      </div>
+      <div id="reviews-container" style="padding:.5rem 0;"></div>
+    </div>
+
+    <div class="card" id="cust-cmps">
+      <div class="card-hdr">
+        <h3><i class="fas fa-triangle-exclamation ic-red"></i>My Complaints</h3>
+        <button class="btn btn-primary btn-sm" onclick="openComplaintForm()"><i class="fas fa-plus"></i> File Complaint</button>
+      </div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>ID</th><th>Service</th><th>Issue</th><th>Status</th><th>Date</th></tr></thead>
+        <tbody id="cust-cmp-tbody"></tbody>
+      </table></div>
+    </div>
+  </div>
+
+</main>
+
+<!-- ═══════════════════ MODALS ═══════════════════ -->
+
+<!-- Write Review Modal -->
+<div id="review-modal" class="modal-ov">
+  <div class="modal-box">
+    <div class="m-hdr"><h3><i class="fas fa-star" style="color:#f59e0b;margin-right:6px;"></i>Write a Review</h3><button class="close-btn">&times;</button></div>
+    <form id="review-form">
+      <div id="rev-err" class="err" style="display:none;"></div>
+      <div class="fg">
+        <label>Select Service</label>
+        <select id="rev-service" required>
+          <option value="">Choose a service you used...</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label>Your Rating</label>
+        <div class="star-input" id="star-input">
+          <i class="far fa-star" data-val="1"></i>
+          <i class="far fa-star" data-val="2"></i>
+          <i class="far fa-star" data-val="3"></i>
+          <i class="far fa-star" data-val="4"></i>
+          <i class="far fa-star" data-val="5"></i>
+        </div>
+        <input type="hidden" id="rev-stars" value="0"/>
+      </div>
+      <div class="fg">
+        <label>Your Review</label>
+        <textarea id="rev-text" placeholder="Share your experience with this service..." required style="min-height:90px;"></textarea>
+      </div>
+      <button type="submit" class="auth-btn"><i class="fas fa-paper-plane"></i> Submit Review</button>
+    </form>
+  </div>
+</div>
+
+<!-- Service Details -->
+<div id="svc-modal" class="modal-ov">
+  <div class="modal-box">
+    <div class="m-hdr"><h3 id="svc-m-title">Details</h3><button class="close-btn">&times;</button></div>
+    <div id="svc-m-body"></div>
+  </div>
+</div>
+
+<!-- Booking Form -->
+<div id="book-modal" class="modal-ov">
+  <div class="modal-box">
+    <div class="m-hdr"><h3>Book a Service</h3><button class="close-btn">&times;</button></div>
+    <form id="book-form">
+      <input type="hidden" id="b-svc"/>
+      <div class="fg"><label>Service & Price</label><input type="text" id="b-price" readonly style="background:#f1f5f9;font-weight:700;color:var(--primary);"/></div>
+      <div class="fg"><label>Your Name</label><input type="text" id="b-name" required/></div>
+      <div class="fg"><label>Phone</label><input type="tel" id="b-phone" required/></div>
+      <div class="fg"><label>Address</label><textarea id="b-addr" required></textarea></div>
+      <div class="fg"><label><i class="fas fa-wallet"></i> Payment Method</label>
+        <select id="b-pay"><option value="Cash on Delivery">Cash on Delivery</option><option value="eSewa">eSewa</option><option value="PhonePe">PhonePe</option></select>
+      </div>
+      <button type="submit" class="auth-btn">Submit Booking</button>
+    </form>
+  </div>
+</div>
+
+<!-- Chat Modal (customer ↔ provider) -->
+<div id="chat-modal" class="modal-ov">
+  <div class="modal-box">
+    <div class="m-hdr"><h3 id="chat-title">Conversation</h3><button class="close-btn" id="chat-close-btn">&times;</button></div>
+    <div class="ep-chat-wrap">
+      <div class="chat-hist" id="chat-hist"></div>
+      <div id="chat-blocked" class="err" style="display:none;"><i class="fas fa-lock"></i> Chat is private between the customer and their assigned provider.</div>
+      <form id="chat-form">
+        <div class="chat-row">
+          <input type="text" id="chat-inp" placeholder="Type a message..." autocomplete="off"/>
+          <button type="submit" class="btn btn-primary"><i class="fas fa-paper-plane"></i></button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Employee Profile Modal (admin ↔ employee) -->
+<div id="emp-modal" class="modal-ov">
+  <div class="modal-box wide">
+    <div class="m-hdr"><h3>Employee Profile</h3><button class="close-btn">&times;</button></div>
+    <div class="emp-profile-head">
+      <img id="ep-photo" class="emp-profile-photo" src="" alt=""/>
+      <div class="ep-info">
+        <div class="svc-tag" id="ep-svc-tag">Service</div>
+        <h2 id="ep-name">Name</h2>
+        <p id="ep-email"><i class="fas fa-envelope" style="margin-right:4px;"></i><span></span></p>
+        <p id="ep-phone"><i class="fas fa-phone" style="margin-right:4px;"></i><span></span></p>
+      </div>
+    </div>
+    <div class="ep-tabs">
+      <div class="ep-tab active" data-pane="pane-info">Info</div>
+      <div class="ep-tab" data-pane="pane-chat">Chat</div>
+    </div>
+    <div id="pane-info" class="ep-pane active">
+      <div id="ep-detail-body"></div>
+    </div>
+    <div id="pane-chat" class="ep-pane">
+      <!-- Audio / Video call buttons -->
+      <div class="call-controls">
+        <button class="call-btn audio" id="ep-audio-btn" title="Audio Call"><i class="fas fa-phone"></i></button>
+        <button class="call-btn video" id="ep-video-btn" title="Video Call"><i class="fas fa-video"></i></button>
+        <span id="call-status-label" style="font-size:.8rem;color:var(--muted);align-self:center;"></span>
+      </div>
+      <div class="ep-chat-wrap">
+        <div class="chat-hist" id="ep-chat-hist"></div>
+        <form id="ep-chat-form">
+          <div class="chat-row">
+            <input type="text" id="ep-chat-inp" placeholder="Message employee..." autocomplete="off"/>
+            <button type="submit" class="btn btn-primary"><i class="fas fa-paper-plane"></i></button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Provider: Chat with Admin modal -->
+<div id="prov-chat-modal" class="modal-ov">
+  <div class="modal-box">
+    <div class="m-hdr"><h3><i class="fas fa-headset" style="color:var(--primary);margin-right:6px;"></i>Chat with Admin</h3><button class="close-btn">&times;</button></div>
+    <!-- Call buttons: only shown for first 5 employees (Sujit, Rina, Bikash, Sunita, Dipesh) -->
+    <div id="prov-call-controls" style="display:none;justify-content:center;gap:12px;margin-bottom:.8rem;padding:.6rem;background:#f8fafc;border-radius:8px;border:1px solid var(--border);">
+      <button class="call-btn audio" id="prov-audio-btn" title="Audio Call with Admin"><i class="fas fa-phone"></i></button>
+      <button class="call-btn video" id="prov-video-btn" title="Video Call with Admin"><i class="fas fa-video"></i></button>
+      <span id="prov-call-status" style="font-size:.8rem;color:var(--muted);align-self:center;"></span>
+    </div>
+    <div class="ep-chat-wrap">
+      <div class="chat-hist" id="prov-chat-hist"></div>
+      <form id="prov-chat-form">
+        <div class="chat-row">
+          <input type="text" id="prov-chat-inp" placeholder="Reply to admin..." autocomplete="off"/>
+          <button type="submit" class="btn btn-primary"><i class="fas fa-paper-plane"></i></button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Complaint Form -->
+<div id="cmp-modal" class="modal-ov">
+  <div class="modal-box">
+    <div class="m-hdr"><h3><i class="fas fa-triangle-exclamation" style="color:#ef4444;margin-right:6px;"></i>File a Complaint</h3><button class="close-btn">&times;</button></div>
+    <form id="cmp-form">
+      <div class="fg"><label>Select Service Request</label><select id="cmp-order" required></select></div>
+      <div class="fg"><label>Describe the Issue</label><textarea id="cmp-desc" placeholder="Explain the problem..." required style="min-height:90px;"></textarea></div>
+      <button type="submit" class="auth-btn" style="background:#ef4444;">Submit Complaint <i class="fas fa-paper-plane"></i></button>
+    </form>
+  </div>
+</div>
+
+<!-- Forward Complaint -->
+<div id="fwd-modal" class="modal-ov">
+  <div class="modal-box">
+    <div class="m-hdr"><h3>Forward Complaint to Provider</h3><button class="close-btn">&times;</button></div>
+    <input type="hidden" id="fwd-id"/>
+    <div id="fwd-summary" style="background:#f8fafc;border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:1rem;font-size:.87rem;"></div>
+    <div class="fg"><label>Admin Note (optional)</label><textarea id="fwd-note" placeholder="Instructions for the provider..." style="min-height:70px;"></textarea></div>
+    <button class="auth-btn" onclick="confirmForward()"><i class="fas fa-share"></i> Forward to Provider</button>
+  </div>
+</div>
+
+<!-- Resolve Complaint -->
+<div id="res-modal" class="modal-ov">
+  <div class="modal-box">
+    <div class="m-hdr"><h3>Mark Complaint Resolved</h3><button class="close-btn">&times;</button></div>
+    <input type="hidden" id="res-id"/>
+    <div id="res-summary" style="background:#f8fafc;border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:1rem;font-size:.87rem;"></div>
+    <div class="fg"><label>Resolution Note</label><textarea id="res-note" placeholder="What was done to fix it..." style="min-height:70px;"></textarea></div>
+    <button class="auth-btn" style="background:#16a34a;" onclick="confirmResolve()"><i class="fas fa-check"></i> Mark Resolved</button>
+  </div>
+</div>
+
+<!-- INCOMING CALL OVERLAY -->
+<div id="call-overlay">
+  <div class="call-box" id="call-box">
+    <img id="caller-photo" class="call-avatar" src="" alt=""/>
+    <div class="call-name" id="caller-name">Caller</div>
+    <div class="call-status" id="call-status-txt">Incoming audio call...</div>
+    <!-- Admin (caller): only cut button shown -->
+    <div class="call-actions" id="caller-actions" style="display:none;">
+      <div style="text-align:center;">
+        <div style="font-size:.8rem;color:#94a3b8;margin-bottom:1rem;" id="ring-dots">Ringing<span id="ring-anim">...</span></div>
+        <button class="call-act-btn decline" onclick="cancelCall()" title="Cancel call"><i class="fas fa-phone-slash"></i></button>
+        <div style="font-size:.75rem;color:#94a3b8;margin-top:.5rem;">Cancel</div>
+      </div>
+    </div>
+    <!-- Provider (receiver): accept + decline -->
+    <div class="call-actions" id="receiver-actions" style="display:none;">
+      <div style="text-align:center;">
+        <button class="call-act-btn accept" onclick="acceptCall()" title="Accept"><i class="fas fa-phone"></i></button>
+        <div style="font-size:.75rem;color:#94a3b8;margin-top:.3rem;">Accept</div>
+      </div>
+      <div style="text-align:center;">
+        <button class="call-act-btn decline" onclick="declineCall()" title="Decline"><i class="fas fa-phone-slash"></i></button>
+        <div style="font-size:.75rem;color:#94a3b8;margin-top:.3rem;">Decline</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ACTIVE CALL BAR -->
+<div id="active-call-bar">
+  <i class="fas fa-phone" style="color:#22c55e;"></i>
+  <span id="ac-with">Call</span>
+  <span class="ac-timer" id="ac-timer">00:00</span>
+  <button class="ac-end" onclick="endCall()"><i class="fas fa-phone-slash"></i> End</button>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════
+//  DATA
+// ═══════════════════════════════════════════════════
+const EMPLOYEES = [
+  { id:"E01", name:"Sujit Shah",     email:"sujit@gmail.com",    phone:"+977-9801234567", service:"Plumber",         photo:"https://ui-avatars.com/api/?name=Sujit+Shah&background=4f46e5&color=fff&size=200",    bio:"5 years experience in residential and commercial plumbing.", status:"online"  },
+  { id:"E02", name:"Rina Magar",     email:"rina@cep.com",     phone:"+977-9812345678", service:"Electrician",     photo:"https://ui-avatars.com/api/?name=Rina+Magar&background=059669&color=fff&size=200",   bio:"Certified electrician with expertise in wiring and installations.", status:"online"  },
+  { id:"E03", name:"Bikash Thapa",   email:"bikash@cep.com",   phone:"+977-9823456789", service:"Cleaning",        photo:"https://ui-avatars.com/api/?name=Bikash+Thapa&background=0369a1&color=fff&size=200", bio:"Professional cleaner specialising in deep cleaning and sanitation.", status:"offline" },
+  { id:"E04", name:"Sunita Rai",     email:"sunita@cep.com",   phone:"+977-9834567890", service:"Gardener",        photo:"https://ui-avatars.com/api/?name=Sunita+Rai&background=16a34a&color=fff&size=200",   bio:"Landscape designer with 7 years of horticulture experience.", status:"online"  },
+  { id:"E05", name:"Dipesh Gurung",  email:"dipesh@cep.com",   phone:"+977-9845678901", service:"Painter",         photo:"https://ui-avatars.com/api/?name=Dipesh+Gurung&background=d97706&color=fff&size=200",bio:"Interior/exterior painting specialist. Meticulous finish guaranteed.", status:"online"  },
+  { id:"E06", name:"Manisha Karki",  email:"manisha@cep.com",  phone:"+977-9856789012", service:"Carpenter",       photo:"https://ui-avatars.com/api/?name=Manisha+Karki&background=7c3aed&color=fff&size=200",bio:"Custom furniture, cabinetry and woodwork expert.", status:"offline" },
+  { id:"E07", name:"Roshan Basnet",  email:"roshan@cep.com",   phone:"+977-9867890123", service:"AC Specialist",   photo:"https://ui-avatars.com/api/?name=Roshan+Basnet&background=c2410c&color=fff&size=200", bio:"HVAC-certified technician for all AC brands.", status:"online"  },
+  { id:"E08", name:"Puja Shrestha",  email:"puja@cep.com",     phone:"+977-9878901234", service:"Pest Control",    photo:"https://ui-avatars.com/api/?name=Puja+Shrestha&background=dc2626&color=fff&size=200", bio:"Licensed pest control specialist. Eco-friendly treatments.", status:"online"  },
+  { id:"E09", name:"Anil Tamang",    email:"anil@cep.com",     phone:"+977-9889012345", service:"Locksmith",       photo:"https://ui-avatars.com/api/?name=Anil+Tamang&background=0369a1&color=fff&size=200",  bio:"Smart lock, deadbolt and emergency lockout specialist.", status:"offline" },
+  { id:"E10", name:"Gita Lama",      email:"gita@cep.com",     phone:"+977-9890123456", service:"Appliance Repair",photo:"https://ui-avatars.com/api/?name=Gita+Lama&background=059669&color=fff&size=200",    bio:"All major home appliance repairs — washing machines, ovens, fridges.", status:"online"  },
+  { id:"E11", name:"Nabin Adhikari", email:"nabin@cep.com",    phone:"+977-9801122334", service:"Roofer",          photo:"https://ui-avatars.com/api/?name=Nabin+Adhikari&background=4f46e5&color=fff&size=200",bio:"Roof repair, waterproofing and gutter specialist.", status:"online"  },
+  { id:"E12", name:"Sabina Khadka",  email:"sabina@cep.com",   phone:"+977-9802233445", service:"Moving Assistant",photo:"https://ui-avatars.com/api/?name=Sabina+Khadka&background=7c3aed&color=fff&size=200",bio:"Professional packing, moving and unpacking services.", status:"online"  }
+];
+
+const defaultUsers = [
+  { email:"admin@cep.com",    pass:"password", name:"System Admin",            role:"admin"    },
+  { email:"customer@cep.com", pass:"password", name:"Jane Client",             role:"customer" },
+  // Employee accounts — each maps to one service
+  { email:"sujit@cep.com",   pass:"password", name:"Sujit Shah",     role:"provider" },
+  { email:"rina@cep.com",    pass:"password", name:"Rina Magar",     role:"provider" },
+  { email:"bikash@cep.com",  pass:"password", name:"Bikash Thapa",   role:"provider" },
+  { email:"sunita@cep.com",  pass:"password", name:"Sunita Rai",     role:"provider" },
+  { email:"dipesh@cep.com",  pass:"password", name:"Dipesh Gurung",  role:"provider" },
+  { email:"manisha@cep.com", pass:"password", name:"Manisha Karki",  role:"provider" },
+  { email:"roshan@cep.com",  pass:"password", name:"Roshan Basnet",  role:"provider" },
+  { email:"puja@cep.com",    pass:"password", name:"Puja Shrestha",  role:"provider" },
+  { email:"anil@cep.com",    pass:"password", name:"Anil Tamang",    role:"provider" },
+  { email:"gita@cep.com",    pass:"password", name:"Gita Lama",      role:"provider" },
+  { email:"nabin@cep.com",   pass:"password", name:"Nabin Adhikari", role:"provider" },
+  { email:"sabina@cep.com",  pass:"password", name:"Sabina Khadka",  role:"provider" }
+];
+const defaultOrders = [
+  { id:"#REQ-3921", service:"Plumber",     status:"Awaiting Action", date:"May 19, 2026", name:"Jane Client",   phone:"+1 555-0199", address:"782 Spruce Way, NY",  payment:"Cash on Delivery", customerEmail:"customer@cep.com", providerEmail:"sujit@cep.com"  },
+  { id:"#REQ-8109", service:"Electrician", status:"Active",          date:"May 20, 2026", name:"William Smith", phone:"+1 555-4421", address:"302 Cedar Ave, NY",   payment:"eSewa",            customerEmail:"customer@cep.com", providerEmail:"rina@cep.com"   }
+];
+const defaultChats = {
+  "#REQ-3921":[{sender:"provider",text:"Hello! I am assigned to your plumbing request.",time:"May 19, 10:20 AM"},{sender:"customer",text:"The bathroom pipe is leaking.",time:"May 19, 10:22 AM"}],
+  "#REQ-8109":[{sender:"customer",text:"Hi, when will you arrive?",time:"May 20, 09:10 AM"},{sender:"provider",text:"I'll be there in 30 minutes!",time:"May 20, 09:12 AM"}]
+};
+
+const GL = (k,f)=>{ const d=localStorage.getItem(k); if(d){try{return JSON.parse(d);}catch(e){return f;}} localStorage.setItem(k,JSON.stringify(f)); return f; };
+const SL = (k,v)=>localStorage.setItem(k,JSON.stringify(v));
+
+// Default reviews (public, visible to all)
+const defaultReviews = [
+  { id:"#REV-1001", service:"Plumber",     stars:5, text:"Sujit fixed our pipe leak in under an hour. Very professional and clean work. Highly recommend!",      author:"Jane Client",   authorEmail:"customer@cep.com", date:"May 20, 2026", likes:4, dislikes:0, likedBy:[], dislikedBy:[] },
+  { id:"#REV-1002", service:"Electrician", stars:4, text:"Rina was on time and sorted the wiring issue quickly. The lights work perfectly now.",                  author:"William Smith", authorEmail:"william@example.com",date:"May 21, 2026", likes:2, dislikes:0, likedBy:[], dislikedBy:[] },
+  { id:"#REV-1003", service:"Cleaning",    stars:5, text:"Best cleaning service I've used. The team was thorough and left our office spotless.",                   author:"Sara K.",       authorEmail:"sara@example.com",   date:"May 19, 2026", likes:6, dislikes:0, likedBy:[], dislikedBy:[] }
+];
+
+const S = {
+  user:null, role:null, email:null, uid:null,
+  activeChatOrder:null, activeEmpId:null, callTimer:null, callInterval:null,
+  users:     GL("cep_users",    defaultUsers),
+  orders:    GL("cep_orders",   defaultOrders),
+  chats:     GL("cep_chats",    defaultChats),
+  empChats:  GL("cep_emp_chats",{}),  // keyed by empId
+  complaints:GL("cep_complaints",[]),
+  reviews:   GL("cep_reviews",  defaultReviews),
+  services:[
+    {id:1,name:"Plumber",         icon:"fa-faucet",        price:"NPR 1,200/hr", desc:"Expert leak repair, setups and line flushing.",                  detail:"Residential and commercial plumbing. Leaky joints, grease traps, water piping."},
+    {id:2,name:"Electrician",     icon:"fa-bolt",          price:"NPR 1,500/hr", desc:"Circuit maintenance, lighting and short troubleshooting.",         detail:"Fuse box rebuilds, wiring diagnostics, breaker updates, appliance connections."},
+    {id:3,name:"Cleaning",        icon:"fa-broom",         price:"NPR 2,500 Flat",desc:"Premium household sanitation and deep vacuuming.",                detail:"Heavy duty cleaning of restrooms, kitchens, carpets and windows."},
+    {id:4,name:"Gardener",        icon:"fa-leaf",          price:"NPR 800/hr",   desc:"Lawn maintenance, plant trim and backyard design.",                detail:"Mowing, hedge clipping, soil nutrition and flora layout designs."},
+    {id:5,name:"Painter",         icon:"fa-paint-roller",  price:"NPR 4,000 Flat",desc:"Interior and exterior painting services.",                        detail:"Wall prep, paint coats, trim painting and wallpaper installation."},
+    {id:6,name:"Carpenter",       icon:"fa-hammer",        price:"NPR 1,100/hr", desc:"Furniture repairs, custom cabinetry and wood fixtures.",           detail:"Shelves, doors, cabinet fabrication and framing updates."},
+    {id:7,name:"AC Specialist",   icon:"fa-snowflake",     price:"NPR 3,000 Flat",desc:"Diagnostics, gas refilling and AC installations.",                detail:"Pressure washes, thermostat connections and full unit installations."},
+    {id:8,name:"Pest Control",    icon:"fa-bug",           price:"NPR 5,000 Flat",desc:"Safeguard against termites, rodents and bugs.",                   detail:"Inspection, structural protection barriers and non-toxic bait."},
+    {id:9,name:"Locksmith",       icon:"fa-key",           price:"NPR 1,800 Flat",desc:"Emergency lockout, key copying and lock installation.",            detail:"Master keying, deadbolt setups and smart lock configuration."},
+    {id:10,name:"Appliance Repair",icon:"fa-tv",           price:"NPR 1,000/hr", desc:"Fast fixes for ovens, washing machines and fridges.",              detail:"Component testing, brand part replacements and fast repair."},
+    {id:11,name:"Roofer",         icon:"fa-house",         price:"NPR 2,200/hr", desc:"Roof leakage, tiling, slate repair and gutter fixes.",             detail:"Shingle repairs, complete structure rebuilds and gutter installation."},
+    {id:12,name:"Moving Assistant",icon:"fa-truck-ramp-box",price:"NPR 6,000 Flat",desc:"Furniture wrapping, transport and loading help.",               detail:"Organized boxing, truck transport and safe unpacking."}
+  ]
+};
+
+// ═══════════════════════════════════════════════════
+//  HELPERS
+// ═══════════════════════════════════════════════════
+const ts = ()=>new Date().toLocaleString("en-US",{month:"short",day:"numeric",hour:"numeric",minute:"2-digit",hour12:true});
+const dt = ()=>new Date().toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"});
+
+function payBadge(o){
+  return o.payment==="Cash on Delivery"
+    ? `<span class="badge bg-yellow"><i class="fas fa-clock"></i> Pending</span>`
+    : `<span class="badge bg-green"><i class="fas fa-circle-check"></i> Paid</span>`;
+}
+function statusBadge(s){
+  const m={Active:"bg-blue","Awaiting Action":"bg-yellow",Completed:"bg-green"};
+  return `<span class="badge ${m[s]||'bg-yellow'}">${s}</span>`;
+}
+
+// ═══════════════════════════════════════════════════
+//  AUTH — Gmail OTP + MongoDB (backend API)
+// ═══════════════════════════════════════════════════
+
+const PROVIDER_EMAILS = new Set(EMPLOYEES.map(e=>e.email.toLowerCase()));
+
+let signupPending = null;   // { name, email }
+let forgotPending = null;   // { email }
+let resendCountdown = null;
+
+function validEmail(em){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em); }
+function validGmail(em){
+  if(!validEmail(em)) return false;
+  const d = em.trim().toLowerCase().split("@")[1];
+  return d === "gmail.com" || d === "googlemail.com";
+}
+
+function getAuthToken(){ return sessionStorage.getItem("cep_token"); }
+function setAuthToken(t){ if(t) sessionStorage.setItem("cep_token",t); else sessionStorage.removeItem("cep_token"); }
+
+async function api(path, options={}){
+  const headers = { "Content-Type":"application/json", ...(options.headers||{}) };
+  const token = getAuthToken();
+  if(token) headers.Authorization = "Bearer "+token;
+  const res = await fetch(API_BASE + path, { ...options, headers });
+  const data = await res.json().catch(()=>({}));
+  if(!res.ok) throw new Error(data.error || "Request failed");
+  return data;
+}
+
+let selectedPortalRole = null;
+
+function selectPortal(role){
+  selectedPortalRole = role;
+  document.getElementById("portal-pick-hint").classList.add("hidden");
+  const slot = document.getElementById("portal-slot");
+  slot.classList.remove("hidden");
+  ["admin","provider","customer"].forEach(r=>{
+    const el = document.getElementById("portal-"+r);
+    if(el) el.classList.toggle("portal-active", r===role);
+  });
+  slot.scrollIntoView({ behavior:"smooth", block:"nearest" });
+}
+
+function showPortals(){
+  document.getElementById("auth-landing").classList.remove("hidden");
+  ["cust-signup-modal","admin-signup-modal","prov-signup-modal","cust-forgot-modal"].forEach(id=>{
+    document.getElementById(id).classList.add("hidden");
+  });
+  if(selectedPortalRole) selectPortal(selectedPortalRole);
+}
+function openAuthModal(id){
+  ["cust-signup-modal","admin-signup-modal","prov-signup-modal","cust-forgot-modal"].forEach(mid=>{
+    document.getElementById(mid).classList.toggle("hidden", mid!==id);
+  });
+  closeLoginDropdown();
+}
+function closeAuthModal(){
+  resetSignupForm();
+  document.getElementById("fp-step1").style.display="block";
+  document.getElementById("fp-step2").style.display="none";
+  showPortals();
+}
+
+async function syncOrdersFromAPI(){
+  try{
+    const { orders } = await api("/api/customers/orders");
+    const ids = new Set(S.orders.map(o=>o.id));
+    for(const o of orders){
+      if(!ids.has(o.id)){ S.orders.unshift(o); ids.add(o.id); }
+    }
+    SL("cep_orders", S.orders);
+  }catch(e){ console.warn("[CEP] Could not sync orders:", e.message); }
+}
+
+async function loadCustomerBookingsFromAPI(){
+  try{
+    const { services } = await api("/api/customers/me/bookings");
+    const ids = new Set(S.orders.filter(o=>o.customerEmail===S.email).map(o=>o.id));
+    for(const s of services){
+      const id = s.requestId;
+      if(ids.has(id)) continue;
+      S.orders.unshift({
+        id, service:s.service, status:s.status, date:s.date,
+        name:s.name, phone:s.phone, address:s.address, payment:s.payment,
+        customerEmail:S.email, providerEmail:s.providerEmail||""
+      });
+      ids.add(id);
+    }
+    SL("cep_orders", S.orders);
+  }catch(e){ console.warn("[CEP] Bookings sync:", e.message); }
+}
+
+// ── Login dropdown ──────────────────────────────────────
+function closeLoginDropdown(){
+  const wrap = document.getElementById("login-dropdown-wrap");
+  const menu = document.getElementById("login-dropdown-menu");
+  wrap.classList.remove("open");
+  menu.classList.add("hidden");
+  document.getElementById("login-dropdown-btn").setAttribute("aria-expanded","false");
+}
+document.getElementById("login-dropdown-btn").onclick=function(e){
+  e.stopPropagation();
+  const wrap = document.getElementById("login-dropdown-wrap");
+  const menu = document.getElementById("login-dropdown-menu");
+  const open = wrap.classList.toggle("open");
+  menu.classList.toggle("hidden", !open);
+  this.setAttribute("aria-expanded", open ? "true" : "false");
+};
+document.querySelectorAll("#login-dropdown-menu [data-portal]").forEach(btn=>{
+  btn.onclick=function(){
+    selectPortal(this.getAttribute("data-portal"));
+    closeLoginDropdown();
+  };
+});
+document.addEventListener("click",function(e){
+  if(!document.getElementById("login-dropdown-wrap").contains(e.target)) closeLoginDropdown();
+});
+
+// ── Portal navigation ──────────────────────────────────────
+document.querySelectorAll("[data-signup]").forEach(el=>{
+  el.onclick=()=>{
+    const role=el.getAttribute("data-signup");
+    if(role==="customer"){ resetSignupForm(); openAuthModal("cust-signup-modal"); }
+    else if(role==="admin") openAuthModal("admin-signup-modal");
+    else if(role==="provider") openAuthModal("prov-signup-modal");
+  };
+});
+document.querySelectorAll(".auth-modal-close").forEach(btn=>{
+  btn.onclick=()=>closeAuthModal();
+});
+document.getElementById("cust-forgot-link").onclick=()=>{
+  document.getElementById("fp-step1").style.display="block";
+  document.getElementById("fp-step2").style.display="none";
+  document.getElementById("fp-err").style.display="none";
+  if(document.getElementById("fp-email")) document.getElementById("fp-email").value="";
+  openAuthModal("cust-forgot-modal");
+};
+
+function resetSignupForm(){
+  document.getElementById("signup-step1").style.display="block";
+  document.getElementById("signup-step2").style.display="none";
+  if(document.getElementById("signup-form")) document.getElementById("signup-form").reset();
+  document.getElementById("s-err").style.display="none";
+  document.getElementById("s-ok").style.display="none";
+  signupPending=null;
+  clearInterval(resendCountdown);
+}
+
+// ══════════════════════════════════════════════════
+//  SIGNUP Step 1 — Validate & send OTP to Gmail
+// ══════════════════════════════════════════════════
+document.getElementById("signup-form").onsubmit=async function(e){
+  e.preventDefault();
+  const nm  = document.getElementById("s-name").value.trim();
+  const em  = document.getElementById("s-email").value.trim().toLowerCase();
+  const pw  = document.getElementById("s-pass").value;
+  const err = document.getElementById("s-err");
+  const ok  = document.getElementById("s-ok");
+  const btn = document.getElementById("send-otp-btn");
+  err.style.display="none"; ok.style.display="none";
+
+  if(!nm||!em||!pw){ err.textContent="Please fill in all fields."; err.style.display="block"; return; }
+  if(!validGmail(em)){ err.textContent="Only valid Gmail addresses are allowed (e.g. name@gmail.com)."; err.style.display="block"; return; }
+  if(pw.length<6){ err.textContent="Password must be at least 6 characters."; err.style.display="block"; return; }
+  if(PROVIDER_EMAILS.has(em)){ err.textContent="This email is reserved for authorised employees."; err.style.display="block"; return; }
+
+  signupPending = { name:nm, email:em };
+
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending OTP...';
+
+  let result;
+  try{
+    result = await api("/api/auth/signup/send-otp", {
+      method:"POST",
+      body: JSON.stringify({ name:nm, email:em, password:pw })
+    });
+  }catch(ex){
+    err.textContent = ex.message;
+    err.style.display="block";
+    btn.disabled=false;
+    btn.innerHTML='Send OTP to Gmail <i class="fas fa-paper-plane"></i>';
+    return;
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = 'Send OTP to Gmail <i class="fas fa-paper-plane"></i>';
+
+  if(!result.emailSent){
+    err.textContent = result.message || "Could not send OTP to your Gmail. Please try again.";
+    err.style.display = "block";
+    signupPending = null;
+    return;
+  }
+
+  const sentLabel = document.getElementById("otp-sent-label");
+  if(sentLabel) sentLabel.innerText = "OTP sent to: " + em;
+  ok.innerHTML = "✅ OTP sent to <strong>"+em+"</strong>! Check your Gmail inbox and Spam folder.";
+  ok.style.display = "block";
+
+  document.getElementById("otp-inp").value="";
+  document.getElementById("otp-err").style.display="none";
+  document.getElementById("signup-step1").style.display="none";
+  document.getElementById("signup-step2").style.display="block";
+  startResendCountdown();
+};
+
+// ── Signup Step 2: Verify OTP ──
+window.verifySignupOTP=async function(){
+  const entered = document.getElementById("otp-inp").value.trim();
+  const errEl   = document.getElementById("otp-err");
+  errEl.style.display="none";
+
+  if(!signupPending){ errEl.textContent="Session expired. Please restart signup."; errEl.style.display="block"; return; }
+  if(entered.length !== 6){ errEl.textContent="Please enter the full 6-digit OTP."; errEl.style.display="block"; return; }
+
+  try{
+    await api("/api/auth/signup/verify", {
+      method:"POST",
+      body: JSON.stringify({ email: signupPending.email, otp: entered })
+    });
+  }catch(ex){
+    errEl.textContent = ex.message;
+    errEl.style.display="block";
+    return;
+  }
+
+  const regEmail = signupPending.email;
+  signupPending = null;
+  clearInterval(resendCountdown);
+
+  resetSignupForm();
+  closeAuthModal();
+  document.getElementById("cust-l-email").value = regEmail;
+  document.getElementById("cust-l-pass").focus();
+  const lErr = document.getElementById("cust-l-err");
+  lErr.style.cssText = "display:block;background:#dcfce7;color:#15803d;border-left-color:#15803d;";
+  lErr.textContent = "Account verified! Please sign in.";
+  setTimeout(()=>{ lErr.style.display="none"; lErr.style.cssText=""; },5000);
+};
+
+// ── Resend OTP ──
+window.resendOTP=async function(){
+  if(!signupPending) return;
+  const errEl = document.getElementById("otp-err");
+  try{
+    const result = await api("/api/auth/signup/resend-otp", {
+      method:"POST",
+      body: JSON.stringify({ email: signupPending.email })
+    });
+    errEl.style.background="#dcfce7"; errEl.style.color="#15803d"; errEl.style.borderLeftColor="#15803d";
+    errEl.textContent = "✓ New OTP sent to "+signupPending.email+"!";
+  }catch(ex){
+    errEl.style.background=""; errEl.style.color=""; errEl.style.borderLeftColor="";
+    errEl.textContent = ex.message;
+  }
+  errEl.style.display="block";
+  startResendCountdown();
+};
+
+function startResendCountdown(){
+  clearInterval(resendCountdown);
+  let secs = 60;
+  const timerEl = document.getElementById("resend-timer");
+  const resendBtn = document.getElementById("resend-btn");
+  if(resendBtn) resendBtn.style.display="none";
+  if(timerEl) timerEl.innerText = " (resend in "+secs+"s)";
+  resendCountdown = setInterval(()=>{
+    secs--;
+    if(timerEl) timerEl.innerText = secs>0?" (resend in "+secs+"s)":"";
+    if(secs<=0){
+      clearInterval(resendCountdown);
+      if(resendBtn) resendBtn.style.display="inline";
+      if(timerEl) timerEl.innerText="";
+    }
+  },1000);
+}
+
+// ══════════════════════════════════════════════════
+//  LOGIN (per role)
+// ══════════════════════════════════════════════════
+async function finishLogin(name, role, email, token, errEl){
+  if(token) setAuthToken(token); else setAuthToken(null);
+  S.user=name; S.role=role; S.email=email;
+  S.uid="CEP-"+Math.floor(1000+Math.random()*9000);
+  if(errEl) errEl.style.display="none";
+  document.getElementById("auth-overlay").classList.add("hidden");
+  if(role==="customer") await loadCustomerBookingsFromAPI();
+  if(role==="admin") await syncOrdersFromAPI();
+  buildUI();
+}
+
+function showPortalErr(errEl, msg){
+  errEl.textContent=msg;
+  errEl.style.display="block";
+}
+
+document.getElementById("admin-login-form").onsubmit=async function(e){
+  e.preventDefault();
+  const em=document.getElementById("admin-l-email").value.trim().toLowerCase();
+  const pw=document.getElementById("admin-l-pass").value;
+  const errEl=document.getElementById("admin-l-err");
+  errEl.style.display="none";
+  const u=S.users.find(x=>x.email.toLowerCase()===em&&x.pass===pw&&x.role==="admin");
+  if(u) await finishLogin(u.name,"admin",u.email,null,errEl);
+  else showPortalErr(errEl,"Invalid administrator email or password.");
+};
+
+document.getElementById("prov-login-form").onsubmit=async function(e){
+  e.preventDefault();
+  const em=document.getElementById("prov-l-email").value.trim().toLowerCase();
+  const pw=document.getElementById("prov-l-pass").value;
+  const errEl=document.getElementById("prov-l-err");
+  errEl.style.display="none";
+  const u=S.users.find(x=>x.email.toLowerCase()===em&&x.pass===pw&&x.role==="provider");
+  if(!u){ showPortalErr(errEl,"Invalid service provider email or password."); return; }
+  if(!PROVIDER_EMAILS.has(em)){ showPortalErr(errEl,"This provider account is not authorised."); return; }
+  await finishLogin(u.name,"provider",u.email,null,errEl);
+};
+
+document.getElementById("cust-login-form").onsubmit=async function(e){
+  e.preventDefault();
+  const em=document.getElementById("cust-l-email").value.trim().toLowerCase();
+  const pw=document.getElementById("cust-l-pass").value;
+  const errEl=document.getElementById("cust-l-err");
+  errEl.style.display="none";
+  if(validGmail(em)){
+    try{
+      const data=await api("/api/auth/login",{method:"POST",body:JSON.stringify({email:em,password:pw})});
+      await finishLogin(data.user.name,data.user.role,data.user.email,data.token,errEl);
+      return;
+    }catch(ex){
+      showPortalErr(errEl,ex.message);
+      return;
+    }
+  }
+  const u=S.users.find(x=>x.email.toLowerCase()===em&&x.pass===pw&&x.role==="customer");
+  if(u) await finishLogin(u.name,"customer",u.email,null,errEl);
+  else showPortalErr(errEl,"Invalid credentials. Use your registered Gmail.");
+};
+
+document.getElementById("admin-signup-form").onsubmit=function(e){
+  e.preventDefault();
+  const nm=document.getElementById("admin-s-name").value.trim();
+  const em=document.getElementById("admin-s-email").value.trim().toLowerCase();
+  const pw=document.getElementById("admin-s-pass").value;
+  const pw2=document.getElementById("admin-s-pass2").value;
+  const err=document.getElementById("admin-s-err");
+  const ok=document.getElementById("admin-s-ok");
+  err.style.display="none"; ok.style.display="none";
+  if(!nm||!em||!pw){ err.textContent="Please fill in all fields."; err.style.display="block"; return; }
+  if(pw.length<6){ err.textContent="Password must be at least 6 characters."; err.style.display="block"; return; }
+  if(pw!==pw2){ err.textContent="Passwords do not match."; err.style.display="block"; return; }
+  if(S.users.some(u=>u.email.toLowerCase()===em)){ err.textContent="Email already registered."; err.style.display="block"; return; }
+  S.users.push({name:nm,email:em,pass:pw,role:"admin"});
+  SL("cep_users",S.users);
+  ok.textContent="Administrator account created! You can sign in now.";
+  ok.style.display="block";
+  document.getElementById("admin-signup-form").reset();
+  setTimeout(()=>{ closeAuthModal(); document.getElementById("admin-l-email").value=em; },1500);
+};
+
+document.getElementById("prov-signup-form").onsubmit=function(e){
+  e.preventDefault();
+  const nm=document.getElementById("prov-s-name").value.trim();
+  const em=document.getElementById("prov-s-email").value.trim().toLowerCase();
+  const pw=document.getElementById("prov-s-pass").value;
+  const pw2=document.getElementById("prov-s-pass2").value;
+  const err=document.getElementById("prov-s-err");
+  const ok=document.getElementById("prov-s-ok");
+  err.style.display="none"; ok.style.display="none";
+  if(!nm||!em||!pw){ err.textContent="Please fill in all fields."; err.style.display="block"; return; }
+  if(!validEmail(em)){ err.textContent="Please enter a valid email."; err.style.display="block"; return; }
+  if(pw.length<6){ err.textContent="Password must be at least 6 characters."; err.style.display="block"; return; }
+  if(pw!==pw2){ err.textContent="Passwords do not match."; err.style.display="block"; return; }
+  if(S.users.some(u=>u.email.toLowerCase()===em)){ err.textContent="Email already registered."; err.style.display="block"; return; }
+  S.users.push({name:nm,email:em,pass:pw,role:"provider"});
+  PROVIDER_EMAILS.add(em);
+  SL("cep_users",S.users);
+  ok.textContent="Service provider account created! You can sign in now.";
+  ok.style.display="block";
+  document.getElementById("prov-signup-form").reset();
+  setTimeout(()=>{ closeAuthModal(); document.getElementById("prov-l-email").value=em; },1500);
+};
+
+// ══════════════════════════════════════════════════
+//  FORGOT PASSWORD Step 1 — Send OTP to Gmail
+// ══════════════════════════════════════════════════
+window.sendForgotOTP=async function(){
+  const em    = (document.getElementById("fp-email").value||"").trim().toLowerCase();
+  const errEl = document.getElementById("fp-err");
+  errEl.style.display="none";
+
+  if(!em||!validGmail(em)){ errEl.textContent="Please enter your registered Gmail (e.g. name@gmail.com)."; errEl.style.display="block"; return; }
+
+  forgotPending = { email:em };
+
+  const btn = document.querySelector("#fp-step1 button");
+  if(btn){ btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Sending...'; }
+
+  let result;
+  try{
+    result = await api("/api/auth/forgot/send-otp", { method:"POST", body: JSON.stringify({ email: em }) });
+  }catch(ex){
+    errEl.textContent = ex.message;
+    errEl.style.display="block";
+    if(btn){ btn.disabled=false; btn.innerHTML='Send Reset OTP <i class="fas fa-paper-plane"></i>'; }
+    return;
+  }
+
+  if(btn){ btn.disabled=false; btn.innerHTML='Send Reset OTP <i class="fas fa-paper-plane"></i>'; }
+
+  const lbl = document.getElementById("fp-sent-label");
+  if(lbl) lbl.innerHTML = "✅ OTP sent to <strong>"+em+"</strong>! Check your Gmail inbox.";
+  document.getElementById("fp-otp-inp").value="";
+  document.getElementById("fp-new-pass").value="";
+  document.getElementById("fp-conf-pass").value="";
+  document.getElementById("fp-otp-err").style.display="none";
+  document.getElementById("fp-step1").style.display="none";
+  document.getElementById("fp-step2").style.display="block";
+};
+
+// ── Forgot Password Step 2: Verify OTP + set new password ──
+window.resetPassword=async function(){
+  const entered  = document.getElementById("fp-otp-inp").value.trim();
+  const newPass  = document.getElementById("fp-new-pass").value;
+  const confPass = document.getElementById("fp-conf-pass").value;
+  const errEl    = document.getElementById("fp-otp-err");
+  errEl.style.display="none";
+
+  if(!forgotPending){ errEl.textContent="Session expired. Please start over."; errEl.style.display="block"; return; }
+  if(entered.length!==6){ errEl.textContent="Please enter the full 6-digit OTP."; errEl.style.display="block"; return; }
+  if(!newPass||newPass.length<6){ errEl.textContent="New password must be at least 6 characters."; errEl.style.display="block"; return; }
+  if(newPass!==confPass){ errEl.textContent="Passwords do not match."; errEl.style.display="block"; return; }
+
+  try{
+    await api("/api/auth/forgot/reset", {
+      method:"POST",
+      body: JSON.stringify({
+        email: forgotPending.email,
+        otp: entered,
+        newPassword: newPass,
+        confirmPassword: confPass
+      })
+    });
+  }catch(ex){
+    errEl.textContent = ex.message;
+    errEl.style.display="block";
+    return;
+  }
+
+  const resetEmail = forgotPending.email;
+  forgotPending = null;
+
+  document.getElementById("fp-step1").style.display="block";
+  document.getElementById("fp-step2").style.display="none";
+  closeAuthModal();
+  document.getElementById("cust-l-email").value = resetEmail;
+  document.getElementById("cust-l-pass").focus();
+  const lErr = document.getElementById("cust-l-err");
+  lErr.style.cssText = "display:block;background:#dcfce7;color:#15803d;border-left-color:#15803d;";
+  lErr.textContent = "Password reset successfully! Please sign in.";
+  setTimeout(()=>{ lErr.style.display="none"; lErr.style.cssText=""; },5000);
+};
+
+// ═══════════════════════════════════════════════════
+//  BUILD UI
+// ═══════════════════════════════════════════════════
+function buildUI(){
+  document.getElementById("u-name").innerText=S.user;
+  document.getElementById("u-role").innerText=S.role;
+  document.getElementById("u-id").innerText="ID: "+S.uid;
+  document.getElementById("u-avatar").src=`https://ui-avatars.com/api/?name=${encodeURIComponent(S.user)}&background=4f46e5&color=fff`;
+  ["admin-view","provider-view","customer-view"].forEach(id=>document.getElementById(id).classList.add("hidden"));
+  const nav=document.getElementById("nav-list"); nav.innerHTML="";
+
+  if(S.role==="admin"){
+    document.getElementById("page-title").innerText="Admin Control Center";
+    document.getElementById("admin-view").classList.remove("hidden");
+    nav.innerHTML=`
+      <li class="nav-item active" onclick="showAdminPage('pg-overview')"><i class="fas fa-chart-pie"></i> Overview</li>
+      <div class="nav-section">Management</div>
+      <li class="nav-item" onclick="showAdminPage('pg-employees')"><i class="fas fa-user-tie"></i> Employees</li>
+      <li class="nav-item" onclick="showAdminPage('pg-customers')"><i class="fas fa-users"></i> Customers</li>
+      <div class="nav-section">Work</div>
+      <li class="nav-item" onclick="showAdminPage('pg-pending')"><i class="fas fa-hourglass-half"></i> Pending Work</li>
+      <li class="nav-item" onclick="showAdminPage('pg-completed')"><i class="fas fa-circle-check"></i> Completed Work</li>
+      <div class="nav-section">Payments</div>
+      <li class="nav-item" onclick="showAdminPage('pg-pay-success')"><i class="fas fa-circle-check"></i> Payment Success</li>
+      <li class="nav-item" onclick="showAdminPage('pg-pay-pending')"><i class="fas fa-clock"></i> Payment Pending</li>
+      <div class="nav-section">Support</div>
+      <li class="nav-item" onclick="showAdminPage('pg-complaints')"><i class="fas fa-triangle-exclamation"></i> Complaints</li>
+      <li class="nav-item" onclick="showAdminPage('pg-reviews')"><i class="fas fa-star"></i> Reviews</li>
+      <li class="nav-item" id="exit-btn"><i class="fas fa-power-off"></i> Exit</li>`;
+    openSidebar(); renderAdminAll(); setTimeout(()=>renderReviews("admin-reviews-container"),100);
+  } else if(S.role==="provider"){
+    // Find which employee this logged-in provider is
+    const myEmp = EMPLOYEES.find(e=>e.email===S.email);
+    const myService = myEmp ? myEmp.service : "Service Provider";
+    document.getElementById("page-title").innerText = myEmp ? `${myEmp.name} — ${myService}` : "Service Provider Terminal";
+    document.getElementById("provider-view").classList.remove("hidden");
+    nav.innerHTML=`
+      <li class="nav-item active"><i class="fas fa-suitcase"></i> My Dashboard</li>
+      <li class="nav-item" onclick="openProviderAdminChat()"><i class="fas fa-headset"></i> Chat with Admin</li>
+      <li class="nav-item" id="exit-btn"><i class="fas fa-power-off"></i> Exit</li>`;
+    openSidebar(); renderProviderView(); renderProviderComplaints();
+    // Show reviews for this provider's service using consistent reviewCardHTML
+    setTimeout(()=>{
+      const myE=EMPLOYEES.find(e=>e.email===S.email);
+      const mySvc=myE?myE.service:null;
+      const cont=document.getElementById("prov-reviews-container");
+      if(cont){
+        const myRevs=mySvc?S.reviews.filter(r=>r.service===mySvc):S.reviews;
+        if(!myRevs.length){
+          cont.innerHTML=`<div style="text-align:center;padding:1.5rem;color:var(--muted);font-size:.85rem;"><i class="fas fa-star" style="font-size:2rem;display:block;margin-bottom:.5rem;color:#e2e8f0;"></i>No reviews for ${mySvc||"your service"} yet.</div>`;
+          return;
+        }
+        const avg=(myRevs.reduce((a,r)=>a+r.stars,0)/myRevs.length).toFixed(1);
+        cont.innerHTML=`<div style="padding:.8rem 1.2rem;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border);">
+          <span style="color:#f59e0b;font-size:1rem;">${starsHTML(Math.round(+avg))}</span>
+          <strong>${avg} / 5</strong>
+          <span style="font-size:.8rem;color:var(--muted);">(${myRevs.length} review${myRevs.length>1?'s':''})</span>
+        </div>`+myRevs.map(r=>`<div style="padding:.5rem 1.2rem;">${reviewCardHTML(r)}</div>`).join("");
+      }
+    },100);
+  } else {
+    document.getElementById("page-title").innerText="Customer Marketplace";
+    document.getElementById("customer-view").classList.remove("hidden");
+    nav.innerHTML=`
+      <li class="nav-item active" onclick="document.getElementById('cust-mkt').scrollIntoView({behavior:'smooth'})"><i class="fas fa-store"></i> Marketplace</li>
+      <li class="nav-item" onclick="document.getElementById('cust-reqs').scrollIntoView({behavior:'smooth'})"><i class="fas fa-receipt"></i> My Bookings</li>
+      <li class="nav-item" onclick="document.getElementById('cust-feedback').scrollIntoView({behavior:'smooth'})"><i class="fas fa-star"></i> Reviews</li>
+      <li class="nav-item" onclick="document.getElementById('cust-cmps').scrollIntoView({behavior:'smooth'})"><i class="fas fa-triangle-exclamation"></i> My Complaints</li>`;
+    closeSidebar(); renderMarketplace(S.services); renderCustOrders(); renderCustComplaints();
+    renderReviews("reviews-container");
+    // Show "Write Review" button only for customers
+    const wrBtn=document.getElementById("write-review-btn");
+    if(wrBtn) wrBtn.style.display="inline-flex";
+  }
+  attachNavExit(); attachTabToggle();
+  document.getElementById("main-cont").classList.toggle("fw", S.role==="customer");
+}
+
+function openSidebar(){ document.getElementById("main-sidebar").classList.remove("hidden-sb"); document.getElementById("main-cont").classList.remove("fw"); }
+function closeSidebar(){ document.getElementById("main-sidebar").classList.add("hidden-sb"); document.getElementById("main-cont").classList.add("fw"); }
+
+function attachNavExit(){
+  const b=document.getElementById("exit-btn");
+  if(b) b.onclick=()=>location.reload();
+}
+
+// ═══════════════════════════════════════════════════
+//  ADMIN — page switcher
+// ═══════════════════════════════════════════════════
+window.showAdminPage=function(pgId){
+  document.querySelectorAll(".page-section").forEach(p=>p.classList.remove("active-page"));
+  document.getElementById(pgId).classList.add("active-page");
+  document.querySelectorAll("#nav-list .nav-item").forEach(n=>n.classList.remove("active"));
+  const titles={"pg-overview":"Overview","pg-employees":"Employees","pg-customers":"Customers","pg-pending":"Pending Work","pg-completed":"Completed Work","pg-pay-success":"Payment Success","pg-pay-pending":"Payment Pending","pg-complaints":"Complaints","pg-reviews":"Service Reviews"};
+  document.getElementById("page-title").innerText=titles[pgId]||"Admin";
+  renderAdminPage(pgId);
+};
+
+async function renderAdminAll(){
+  await syncOrdersFromAPI();
+  renderAdminStats();
+  renderAdminPage("pg-overview");
+}
+
+function renderAdminStats(){
+  const o=S.orders, c=S.complaints;
+  document.getElementById("st-customers").innerText=[...new Set(o.filter(x=>x.customerEmail).map(x=>x.customerEmail))].length||o.length;
+  document.getElementById("st-employees").innerText=EMPLOYEES.length;
+  document.getElementById("st-pending").innerText=o.filter(x=>x.status!=="Completed").length;
+  document.getElementById("st-completed").innerText=o.filter(x=>x.status==="Completed").length;
+  document.getElementById("st-pay-ok").innerText=o.filter(x=>x.payment!=="Cash on Delivery").length;
+  document.getElementById("st-pay-pend").innerText=o.filter(x=>x.payment==="Cash on Delivery").length;
+  document.getElementById("st-complaints").innerText=c.filter(x=>x.status!=="Resolved").length;
+}
+
+function renderAdminPage(pg){
+  renderAdminStats();
+  if(pg==="pg-overview"){
+    const tb=document.getElementById("overview-recent");
+    tb.innerHTML=S.orders.slice(0,8).map(o=>`<tr>
+      <td><strong>${o.id}</strong></td>
+      <td><div style="font-weight:600;">${o.name}</div><div style="font-size:.75rem;color:var(--muted);">${o.customerEmail||""}</div></td>
+      <td>${o.service}</td>
+      <td><span class="badge bg-blue">${o.payment}</span></td>
+      <td>${payBadge(o)}</td>
+      <td>${statusBadge(o.status)}</td>
+    </tr>`).join("")||`<tr><td colspan="6" class="page-empty" style="padding:1.5rem;"><i class="fas fa-inbox"></i>No requests yet.</td></tr>`;
+  }
+  else if(pg==="pg-employees"){ renderEmployees(); }
+  else if(pg==="pg-customers"){
+    const tb=document.getElementById("customers-tbody");
+    tb.innerHTML=S.orders.map(o=>`<tr>
+      <td><div style="font-weight:600;">${o.name}</div></td>
+      <td style="font-size:.8rem;">${o.customerEmail||"—"}</td>
+      <td style="font-size:.8rem;">${o.phone}</td>
+      <td style="font-size:.8rem;max-width:130px;">${o.address}</td>
+      <td>${o.service}</td>
+      <td><strong>${o.id}</strong></td>
+      <td><span class="badge bg-blue">${o.payment}</span></td>
+      <td>${payBadge(o)}</td>
+      <td>${statusBadge(o.status)}</td>
+      <td style="font-size:.8rem;">${o.date}</td>
+    </tr>`).join("")||`<tr><td colspan="10" class="page-empty" style="padding:1.5rem;">No customer data yet.</td></tr>`;
+  }
+  else if(pg==="pg-pending"){
+    const rows=S.orders.filter(o=>o.status!=="Completed");
+    document.getElementById("pending-tbody").innerHTML=rows.map(o=>`<tr>
+      <td><strong>${o.id}</strong></td>
+      <td><div style="font-weight:600;">${o.name}</div><div style="font-size:.75rem;color:var(--muted);">${o.customerEmail||""}</div></td>
+      <td>${o.service}</td>
+      <td style="font-size:.8rem;max-width:130px;">${o.address}</td>
+      <td><span class="badge bg-blue">${o.payment}</span></td>
+      <td>${payBadge(o)}</td>
+      <td>${statusBadge(o.status)}</td>
+      <td style="font-size:.8rem;">${o.date}</td>
+    </tr>`).join("")||`<tr><td colspan="8" class="page-empty" style="padding:1.5rem;"><i class="fas fa-check-circle"></i> No pending work!</td></tr>`;
+  }
+  else if(pg==="pg-completed"){
+    const rows=S.orders.filter(o=>o.status==="Completed");
+    document.getElementById("completed-tbody").innerHTML=rows.map(o=>`<tr>
+      <td><strong>${o.id}</strong></td>
+      <td><div style="font-weight:600;">${o.name}</div><div style="font-size:.75rem;color:var(--muted);">${o.customerEmail||""}</div></td>
+      <td>${o.service}</td>
+      <td style="font-size:.8rem;max-width:130px;">${o.address}</td>
+      <td><span class="badge bg-blue">${o.payment}</span></td>
+      <td>${payBadge(o)}</td>
+      <td style="font-size:.8rem;">${o.date}</td>
+    </tr>`).join("")||`<tr><td colspan="7" class="page-empty" style="padding:1.5rem;">No completed work yet.</td></tr>`;
+  }
+  else if(pg==="pg-pay-success"){
+    const rows=S.orders.filter(o=>o.payment!=="Cash on Delivery");
+    document.getElementById("pay-success-tbody").innerHTML=rows.map(o=>`<tr>
+      <td><strong>${o.id}</strong></td>
+      <td><div style="font-weight:600;">${o.name}</div><div style="font-size:.75rem;color:var(--muted);">${o.customerEmail||""}</div></td>
+      <td>${o.service}</td>
+      <td><span class="badge bg-green"><i class="fas fa-circle-check"></i> ${o.payment}</span></td>
+      <td>${statusBadge(o.status)}</td>
+      <td style="font-size:.8rem;">${o.date}</td>
+    </tr>`).join("")||`<tr><td colspan="6" class="page-empty" style="padding:1.5rem;">No paid payments yet.</td></tr>`;
+  }
+  else if(pg==="pg-pay-pending"){
+    const rows=S.orders.filter(o=>o.payment==="Cash on Delivery");
+    document.getElementById("pay-pending-tbody").innerHTML=rows.map(o=>`<tr>
+      <td><strong>${o.id}</strong></td>
+      <td><div style="font-weight:600;">${o.name}</div><div style="font-size:.75rem;color:var(--muted);">${o.customerEmail||""}</div></td>
+      <td style="font-size:.8rem;">${o.phone}</td>
+      <td style="font-size:.8rem;max-width:120px;">${o.address}</td>
+      <td>${o.service}</td>
+      <td>${statusBadge(o.status)}</td>
+      <td style="font-size:.8rem;">${o.date}</td>
+    </tr>`).join("")||`<tr><td colspan="7" class="page-empty" style="padding:1.5rem;">No pending payments.</td></tr>`;
+  }
+  else if(pg==="pg-complaints"){ renderAdminComplaints(); }
+  else if(pg==="pg-reviews"){ renderReviews("admin-reviews-container"); }
+}
+
+// ═══════════════════════════════════════════════════
+//  EMPLOYEES
+// ═══════════════════════════════════════════════════
+function renderEmployees(){
+  document.getElementById("emp-grid").innerHTML=EMPLOYEES.map(e=>`
+    <div class="emp-card" onclick="openEmpProfile('${e.id}')">
+      <div class="emp-status">${e.status==="online"?'<span class="online-dot" title="Online"></span>':'<span class="offline-dot" title="Offline"></span>'}</div>
+      <img class="emp-photo" src="${e.photo}" alt="${e.name}"/>
+      <div class="emp-name">${e.name}</div>
+      <div class="emp-service"><i class="fas fa-briefcase" style="margin-right:4px;"></i>${e.service}</div>
+      <div class="emp-contact"><i class="fas fa-envelope" style="margin-right:4px;"></i>${e.email}</div>
+      <div class="emp-contact"><i class="fas fa-phone" style="margin-right:4px;"></i>${e.phone}</div>
+      <button class="btn btn-primary btn-sm" style="margin-top:.8rem;width:100%;" onclick="event.stopPropagation();openEmpProfile('${e.id}')"><i class="fas fa-eye"></i> View Profile</button>
+    </div>`).join("");
+}
+
+window.openEmpProfile=function(eid){
+  const e=EMPLOYEES.find(x=>x.id===eid); if(!e) return;
+  S.activeEmpId=eid;
+  document.getElementById("ep-photo").src=e.photo;
+  document.getElementById("ep-name").innerText=e.name;
+  document.getElementById("ep-svc-tag").innerText=e.service;
+  document.getElementById("ep-email").querySelector("span").innerText=e.email;
+  document.getElementById("ep-phone").querySelector("span").innerText=e.phone;
+  document.getElementById("ep-detail-body").innerHTML=`
+    <div class="info-row"><strong>Full Name</strong><span>${e.name}</span></div>
+    <div class="info-row"><strong>Email</strong><span>${e.email}</span></div>
+    <div class="info-row"><strong>Phone</strong><span>${e.phone}</span></div>
+    <div class="info-row"><strong>Service</strong><span>${e.service}</span></div>
+    <div class="info-row"><strong>Status</strong><span>${e.status==="online"?'<span class="badge bg-green">● Online</span>':'<span class="badge bg-yellow">● Offline</span>'}</span></div>
+    <div class="info-row"><strong>Employee ID</strong><span>${e.id}</span></div>
+    <div style="margin-top:1rem;padding:1rem;background:#f8fafc;border-radius:8px;font-size:.87rem;color:var(--muted);">${e.bio}</div>
+    <div style="margin-top:1rem;font-weight:600;font-size:.9rem;margin-bottom:.5rem;">Assigned Jobs</div>
+    ${S.orders.filter(o=>o.service===e.service).slice(0,3).map(o=>`
+      <div style="padding:.7rem;border:1px solid var(--border);border-radius:8px;margin-bottom:.5rem;font-size:.83rem;">
+        <strong>${o.id}</strong> — ${o.name} — ${statusBadge(o.status)}
+      </div>`).join("")||'<p style="font-size:.83rem;color:var(--muted);">No jobs assigned yet.</p>'}`;
+  // Show/hide call buttons depending on whether this employee has call support
+  const audioBtn=document.getElementById("ep-audio-btn");
+  const videoBtn=document.getElementById("ep-video-btn");
+  const callControls=document.querySelector("#pane-chat .call-controls");
+  if(CALL_ENABLED_EMPS.includes(eid)){
+    audioBtn.style.display="flex"; videoBtn.style.display="flex";
+    if(callControls) callControls.style.display="flex";
+  } else {
+    audioBtn.style.display="none"; videoBtn.style.display="none";
+    if(callControls) callControls.style.display="none";
+  }
+  // Switch to info tab
+  switchEpTab("pane-info");
+  renderEmpChat();
+  document.getElementById("emp-modal").style.display="flex";
+};
+
+function switchEpTab(pane){
+  document.querySelectorAll(".ep-tab").forEach(t=>t.classList.remove("active"));
+  document.querySelectorAll(".ep-pane").forEach(p=>p.classList.remove("active"));
+  document.querySelector(`.ep-tab[data-pane="${pane}"]`).classList.add("active");
+  document.getElementById(pane).classList.add("active");
+}
+
+function attachTabToggle(){
+  document.querySelectorAll(".ep-tab").forEach(t=>{
+    t.onclick=()=>{ switchEpTab(t.getAttribute("data-pane")); if(t.getAttribute("data-pane")==="pane-chat") renderEmpChat(); };
+  });
+}
+
+// ═══════════════════════════════════════════════════
+//  EMPLOYEE CHAT (admin ↔ specific employee)
+// ═══════════════════════════════════════════════════
+function renderEmpChat(){
+  const eid=S.activeEmpId; if(!eid) return;
+  const msgs=S.empChats[eid]||[];
+  const hist=document.getElementById("ep-chat-hist");
+  if(msgs.length===0){ hist.innerHTML=`<div style="text-align:center;color:var(--muted);font-size:.83rem;padding-top:1.5rem;">No messages yet.</div>`; return; }
+  hist.innerHTML=msgs.map(m=>{
+    if(m.sender==="system"){
+      // System messages (missed call, call accepted, etc.) centred
+      return `<div style="text-align:center;font-size:.75rem;color:#64748b;padding:4px 0;">${m.text} <span style="opacity:.6;">${m.time}</span></div>`;
+    }
+    const mine=(S.role==="admin"&&m.sender==="admin")||(S.role==="provider"&&m.sender==="provider");
+    return `<div class="bubble ${mine?"sent":"recv"}"><div>${m.text}</div><div class="chat-time">${m.time}</div></div>`;
+  }).join("");
+  hist.scrollTop=hist.scrollHeight;
+}
+
+document.getElementById("ep-chat-form").onsubmit=e=>{
+  e.preventDefault();
+  const inp=document.getElementById("ep-chat-inp"), text=inp.value.trim(); if(!text) return;
+  const eid=S.activeEmpId; if(!eid) return;
+  if(!S.empChats[eid]) S.empChats[eid]=[];
+  S.empChats[eid].push({sender:"admin",text,time:ts()}); SL("cep_emp_chats",S.empChats);
+  inp.value=""; renderEmpChat();
+};
+
+// Provider opens admin chat
+window.openProviderAdminChat=function(){
+  // Find which employee matches the logged-in provider email
+  const emp=EMPLOYEES.find(e=>e.email===S.email)||EMPLOYEES[0];
+  S.activeEmpId=emp.id;
+  // Show call buttons only for first 5 employees (E01–E05)
+  const callControls=document.getElementById("prov-call-controls");
+  if(CALL_ENABLED_EMPS.includes(emp.id)){
+    callControls.style.display="flex";
+  } else {
+    callControls.style.display="none";
+  }
+  renderProviderChatModal();
+  document.getElementById("prov-chat-modal").style.display="flex";
+};
+
+function renderProviderChatModal(){
+  const eid=S.activeEmpId;
+  const msgs=S.empChats[eid]||[];
+  const hist=document.getElementById("prov-chat-hist");
+  if(msgs.length===0){ hist.innerHTML=`<div style="text-align:center;color:var(--muted);font-size:.83rem;padding-top:1.5rem;">No messages from admin yet.</div>`; return; }
+  hist.innerHTML=msgs.map(m=>{
+    if(m.sender==="system"){
+      return `<div style="text-align:center;font-size:.75rem;color:#64748b;padding:4px 0;">${m.text} <span style="opacity:.6;">${m.time}</span></div>`;
+    }
+    const mine=m.sender==="provider";
+    return `<div class="bubble ${mine?"sent":"recv"}"><div>${m.text}</div><div class="chat-time">${m.time}</div></div>`;
+  }).join("");
+  hist.scrollTop=hist.scrollHeight;
+}
+
+document.getElementById("prov-chat-form").onsubmit=e=>{
+  e.preventDefault();
+  const inp=document.getElementById("prov-chat-inp"), text=inp.value.trim(); if(!text) return;
+  const eid=S.activeEmpId; if(!eid) return;
+  if(!S.empChats[eid]) S.empChats[eid]=[];
+  S.empChats[eid].push({sender:"provider",text,time:ts()}); SL("cep_emp_chats",S.empChats);
+  inp.value=""; renderProviderChatModal();
+};
+
+// ═══════════════════════════════════════════════════
+//  CALL SYSTEM
+// ═══════════════════════════════════════════════════
+// First 5 employees get full audio/video call support
+const CALL_ENABLED_EMPS = ["E01","E02","E03","E04","E05"]; // Sujit, Rina, Bikash, Sunita, Dipesh
+
+let pendingCallType=null, pendingCallEid=null, callTimeoutId=null, ringAnimId=null;
+
+document.getElementById("ep-audio-btn").onclick=()=>initiateCall("audio");
+document.getElementById("ep-video-btn").onclick=()=>initiateCall("video");
+
+// Provider-side call buttons (shown only for first 5 employees)
+document.getElementById("prov-audio-btn").onclick=()=>initiateProviderCall("audio");
+document.getElementById("prov-video-btn").onclick=()=>initiateProviderCall("video");
+
+// ── Admin initiates call to employee ──
+function initiateCall(type){
+  const eid=S.activeEmpId; if(!eid) return;
+  const emp=EMPLOYEES.find(e=>e.id===eid); if(!emp) return;
+  pendingCallType=type; pendingCallEid=eid;
+
+  // Show caller overlay (admin sees: ringing + red cancel button only)
+  document.getElementById("caller-photo").src=emp.photo;
+  document.getElementById("caller-name").innerText=emp.name;
+  document.getElementById("call-status-txt").innerText=
+    type==="video"?`Video calling ${emp.name}...`:`Audio calling ${emp.name}...`;
+  document.getElementById("caller-actions").style.display="flex";
+  document.getElementById("receiver-actions").style.display="none";
+  document.getElementById("call-overlay").style.display="flex";
+  document.getElementById("call-box").classList.add("ringing");
+
+  // Animate ringing dots
+  let dots=0;
+  ringAnimId=setInterval(()=>{
+    dots=(dots+1)%4;
+    const el=document.getElementById("ring-anim");
+    if(el) el.innerText=".".repeat(dots)||"...";
+  },500);
+
+  // After 30s with no answer → missed call
+  callTimeoutId=setTimeout(()=>{
+    clearInterval(ringAnimId);
+    document.getElementById("call-overlay").style.display="none";
+    document.getElementById("call-box").classList.remove("ringing");
+    // Log missed call in emp chat
+    if(!S.empChats[eid]) S.empChats[eid]=[];
+    S.empChats[eid].push({
+      sender:"system",
+      text:`📵 Missed ${type} call — ${type==="video"?"🎥 Video":"📞 Audio"} call from Admin (no answer)`,
+      time:ts()
+    });
+    SL("cep_emp_chats",S.empChats);
+    renderEmpChat();
+    const lbl=document.getElementById("call-status-label");
+    lbl.innerHTML=`<span style="color:#ef4444;"><i class="fas fa-phone-missed" style="margin-right:4px;"></i>No answer — missed call logged</span>`;
+    setTimeout(()=>{lbl.innerHTML="";},4000);
+    pendingCallType=null; pendingCallEid=null; callTimeoutId=null;
+  }, 30000);
+}
+
+// Admin cancels the outgoing call (red cut button while ringing)
+window.cancelCall=function(){
+  clearTimeout(callTimeoutId); clearInterval(ringAnimId);
+  callTimeoutId=null; ringAnimId=null;
+  document.getElementById("call-overlay").style.display="none";
+  document.getElementById("call-box").classList.remove("ringing");
+  // Log cancelled call in chat
+  const eid=pendingCallEid;
+  if(eid){
+    if(!S.empChats[eid]) S.empChats[eid]=[];
+    S.empChats[eid].push({sender:"system",text:`📵 Call cancelled by Admin`,time:ts()});
+    SL("cep_emp_chats",S.empChats);
+    renderEmpChat();
+  }
+  const lbl=document.getElementById("call-status-label");
+  lbl.innerHTML=`<span style="color:#64748b;"><i class="fas fa-phone-slash" style="margin-right:4px;"></i>Call cancelled</span>`;
+  setTimeout(()=>{lbl.innerHTML="";},3000);
+  pendingCallType=null; pendingCallEid=null;
+};
+
+// ── Provider initiates call to admin ──
+function initiateProviderCall(type){
+  const emp=EMPLOYEES.find(e=>e.email===S.email)||EMPLOYEES[0];
+  pendingCallType=type; pendingCallEid=emp.id;
+
+  // Show provider's call overlay (caller role — only cancel button)
+  document.getElementById("caller-photo").src="https://ui-avatars.com/api/?name=System+Admin&background=4f46e5&color=fff&size=200";
+  document.getElementById("caller-name").innerText="System Admin";
+  document.getElementById("call-status-txt").innerText=
+    type==="video"?"Video calling Admin...":"Audio calling Admin...";
+  document.getElementById("caller-actions").style.display="flex";
+  document.getElementById("receiver-actions").style.display="none";
+  document.getElementById("call-overlay").style.display="flex";
+  document.getElementById("call-box").classList.add("ringing");
+
+  let dots=0;
+  ringAnimId=setInterval(()=>{
+    dots=(dots+1)%4;
+    const el=document.getElementById("ring-anim");
+    if(el) el.innerText=".".repeat(dots)||"...";
+  },500);
+
+  // After 30s no answer → missed call
+  callTimeoutId=setTimeout(()=>{
+    clearInterval(ringAnimId);
+    document.getElementById("call-overlay").style.display="none";
+    document.getElementById("call-box").classList.remove("ringing");
+    if(!S.empChats[emp.id]) S.empChats[emp.id]=[];
+    S.empChats[emp.id].push({
+      sender:"system",
+      text:`📵 Missed ${type} call — ${type==="video"?"🎥 Video":"📞 Audio"} call from ${emp.name} (no answer)`,
+      time:ts()
+    });
+    SL("cep_emp_chats",S.empChats);
+    renderProviderChatModal();
+    const lbl=document.getElementById("prov-call-status");
+    lbl.innerHTML=`<span style="color:#ef4444;"><i class="fas fa-phone-missed" style="margin-right:4px;"></i>No answer — missed call logged</span>`;
+    setTimeout(()=>{lbl.innerHTML="";},4000);
+    pendingCallType=null; pendingCallEid=null; callTimeoutId=null;
+  }, 30000);
+}
+
+// ── Employee (provider) receives incoming call from admin ──
+// Called when admin presses call and employee's overlay shows (simulated)
+function showIncomingCallToProvider(emp, type){
+  document.getElementById("caller-photo").src="https://ui-avatars.com/api/?name=System+Admin&background=4f46e5&color=fff&size=200";
+  document.getElementById("caller-name").innerText="System Admin";
+  document.getElementById("call-status-txt").innerText=
+    type==="video"?"Incoming video call from Admin...":"Incoming audio call from Admin...";
+  document.getElementById("caller-actions").style.display="none";
+  document.getElementById("receiver-actions").style.display="flex";
+  document.getElementById("call-overlay").style.display="flex";
+  document.getElementById("call-box").classList.add("ringing");
+}
+
+// Accept call (provider accepts incoming call)
+window.acceptCall=function(){
+  clearTimeout(callTimeoutId); clearInterval(ringAnimId);
+  callTimeoutId=null; ringAnimId=null;
+  document.getElementById("call-overlay").style.display="none";
+  document.getElementById("call-box").classList.remove("ringing");
+  const emp=pendingCallEid?EMPLOYEES.find(e=>e.id===pendingCallEid):null;
+  document.getElementById("ac-with").innerText=emp?emp.name:"Admin";
+  // Log accepted call in chat
+  const eid=pendingCallEid;
+  if(eid){
+    if(!S.empChats[eid]) S.empChats[eid]=[];
+    const callIcon=pendingCallType==="video"?"🎥":"📞";
+    S.empChats[eid].push({sender:"system",text:`${callIcon} ${pendingCallType==="video"?"Video":"Audio"} call accepted`,time:ts()});
+    SL("cep_emp_chats",S.empChats);
+    if(S.role==="admin") renderEmpChat();
+    else renderProviderChatModal();
+  }
+  startCallTimer();
+  document.getElementById("active-call-bar").style.display="flex";
+};
+
+// Decline call (provider declines incoming call)
+window.declineCall=function(){
+  clearTimeout(callTimeoutId); clearInterval(ringAnimId);
+  callTimeoutId=null; ringAnimId=null;
+  document.getElementById("call-overlay").style.display="none";
+  document.getElementById("call-box").classList.remove("ringing");
+  const eid=pendingCallEid;
+  if(eid){
+    if(!S.empChats[eid]) S.empChats[eid]=[];
+    S.empChats[eid].push({sender:"system",text:"📵 Call declined",time:ts()});
+    SL("cep_emp_chats",S.empChats);
+    if(S.role==="admin") renderEmpChat();
+    else renderProviderChatModal();
+  }
+  const lbl=S.role==="admin"?document.getElementById("call-status-label"):document.getElementById("prov-call-status");
+  if(lbl){lbl.innerHTML=`<span style="color:#ef4444;"><i class="fas fa-phone-slash" style="margin-right:4px;"></i>Call declined</span>`;setTimeout(()=>{lbl.innerHTML="";},3000);}
+  pendingCallType=null; pendingCallEid=null;
+};
+
+window.endCall=function(){
+  clearInterval(S.callInterval); S.callTimer=null;
+  document.getElementById("active-call-bar").style.display="none";
+  document.getElementById("ac-timer").innerText="00:00";
+  document.getElementById("call-status-label").innerHTML=`<span style="color:var(--muted);"><i class="fas fa-phone-slash" style="margin-right:4px;"></i>Call ended</span>`;
+  setTimeout(()=>{document.getElementById("call-status-label").innerHTML="";},3000);
+};
+
+function startCallTimer(){
+  let secs=0;
+  S.callInterval=setInterval(()=>{
+    secs++;
+    const m=String(Math.floor(secs/60)).padStart(2,"0"), s=String(secs%60).padStart(2,"0");
+    document.getElementById("ac-timer").innerText=`${m}:${s}`;
+  },1000);
+}
+
+// ═══════════════════════════════════════════════════
+//  PROVIDER VIEW
+// ═══════════════════════════════════════════════════
+function renderProviderView(){
+  // Only show orders for this employee's specific service
+  const myEmp = EMPLOYEES.find(e=>e.email===S.email);
+  const myOrders = myEmp
+    ? S.orders.filter(o=>o.providerEmail===S.email || o.service===myEmp.service)
+    : S.orders;
+  const jobs=myOrders.filter(o=>o.status!=="Completed").length;
+  const earn=myOrders.filter(o=>o.status==="Completed").length*75;
+  document.getElementById("pv-jobs").innerText=jobs;
+  document.getElementById("pv-earn").innerText=`$${earn}`;
+  document.getElementById("pv-orders").innerHTML=myOrders.map(o=>{
+    const isCOD=o.payment==="Cash on Delivery";
+    const pb=isCOD?`<span class="badge bg-yellow"><i class="fas fa-clock"></i> Pending</span>`:`<span class="badge bg-green"><i class="fas fa-circle-check"></i> Paid</span>`;
+    let acts="";
+    if(o.status==="Awaiting Action") acts=`<button class="btn btn-primary btn-sm" onclick="updOrder('${o.id}','Active')"><i class="fas fa-check"></i> Accept</button><button class="btn btn-danger btn-sm" onclick="delOrder('${o.id}')"><i class="fas fa-trash"></i></button>`;
+    else if(o.status==="Active") acts=`<button class="btn btn-green btn-sm" onclick="updOrder('${o.id}','Completed')"><i class="fas fa-flag-checkered"></i> Complete</button>`;
+    else acts=`<span class="badge bg-green">Closed</span>`;
+    return `<tr>
+      <td><div style="font-weight:600;">${o.name}</div><div style="font-size:.75rem;color:var(--muted);">${o.phone}</div></td>
+      <td>${o.service}</td><td style="font-size:.82rem;">${o.date}</td>
+      <td><span class="badge bg-blue">${o.payment}</span></td>
+      <td>${pb}</td><td>${statusBadge(o.status)}</td>
+      <td><div style="display:flex;gap:5px;flex-wrap:wrap;">${acts}<button class="btn btn-chat btn-sm" onclick="openCustChat('${o.id}')"><i class="fas fa-comments"></i></button></div></td>
+    </tr>`;
+  }).join("")||`<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--muted);">No orders yet.</td></tr>`;
+}
+
+function renderProviderComplaints(){
+  // Only show complaints related to this employee's service
+  const myEmp = EMPLOYEES.find(e=>e.email===S.email);
+  const fwd = S.complaints.filter(c=>
+    (c.status==="Forwarded"||c.status==="Resolved") &&
+    (myEmp ? c.service===myEmp.service : true)
+  );
+  document.getElementById("pv-complaints").innerHTML=fwd.map(c=>`<tr style="${c.status==="Forwarded"?'background:#fff8f0;':''}">
+    <td><strong>${c.id}</strong></td>
+    <td><div style="font-weight:600;">${c.customerName}</div><div style="font-size:.75rem;color:var(--muted);">${c.customerEmail}</div></td>
+    <td>${c.service}</td>
+    <td style="max-width:160px;font-size:.83rem;">${c.description}</td>
+    <td style="font-size:.8rem;">${c.adminNote||"—"}</td>
+    <td>${c.status==="Resolved"?'<span class="badge bg-green">Resolved</span>':'<span class="badge bg-orange">Action Needed</span>'}</td>
+    <td>${c.status==="Forwarded"?`<button class="btn btn-primary btn-sm" onclick="openResolveModal('${c.id}')"><i class="fas fa-wrench"></i> Resolve</button>`:'<span style="color:#15803d;font-size:.8rem;">✓ Done</span>'}</td>
+  </tr>`).join("")||`<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--muted);">No complaints forwarded yet.</td></tr>`;
+}
+
+window.updOrder=function(id,st){
+  const o=S.orders.find(x=>x.id===id); if(!o) return;
+  o.status=st; SL("cep_orders",S.orders); renderProviderView(); renderCustOrders(); renderAdminStats();
+};
+window.delOrder=function(id){
+  if(!confirm("Delete this request?")) return;
+  S.orders=S.orders.filter(x=>x.id!==id);
+  if(S.chats[id]){delete S.chats[id]; SL("cep_chats",S.chats);}
+  SL("cep_orders",S.orders); renderProviderView(); renderCustOrders();
+};
+
+// ═══════════════════════════════════════════════════
+//  CUSTOMER VIEW
+// ═══════════════════════════════════════════════════
+function renderMarketplace(list){
+  document.getElementById("svc-grid").innerHTML=list.map(s=>{
+    const revs=S.reviews.filter(r=>r.service===s.name);
+    const avg=revs.length?(revs.reduce((a,r)=>a+r.stars,0)/revs.length).toFixed(1):null;
+    const starBar=avg?`<div class="svc-rating-bar">
+      <span class="svc-avg-stars">${starsHTML(Math.round(+avg))}</span>
+      <span style="font-weight:700;font-size:.78rem;">${avg}</span>
+      <span class="svc-review-count">(${revs.length} review${revs.length>1?'s':''})</span>
+    </div>`:`<div class="svc-rating-bar"><span class="svc-review-count" style="color:#94a3b8;">No reviews yet</span></div>`;
+    return `<div class="svc-card" onclick="openSvcDetail('${s.name}')">
+      <i class="fas ${s.icon}"></i>
+      <h4>${s.name}</h4>
+      <p class="svc-price"><i class="fas fa-tag"></i> ${s.price}</p>
+      ${starBar}
+      <p class="svc-desc">${s.desc}</p>
+      <button class="btn btn-primary" style="width:100%;" onclick="event.stopPropagation();openBooking('${s.name}')">Apply Booking</button>
+    </div>`;
+  }).join("");
+}
+
+function renderCustOrders(){
+  const my=S.orders.filter(o=>!o.customerEmail||o.customerEmail===S.email);
+  document.getElementById("cust-orders").innerHTML=my.map(o=>`<tr>
+    <td><strong>${o.id}</strong></td><td>${o.service}</td>
+    <td><span class="badge bg-blue">${o.payment}</span></td>
+    <td>${statusBadge(o.status)}</td>
+    <td style="font-size:.82rem;">${o.date}</td>
+    <td><button class="btn btn-chat btn-sm" onclick="openCustChat('${o.id}')"><i class="fas fa-comments"></i> Chat</button></td>
+  </tr>`).join("")||`<tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--muted);">No bookings yet.</td></tr>`;
+}
+
+function renderCustComplaints(){
+  const mine=S.complaints.filter(c=>c.customerEmail===S.email);
+  document.getElementById("cust-cmp-tbody").innerHTML=mine.map(c=>`<tr>
+    <td><strong>${c.id}</strong></td><td>${c.service}</td>
+    <td style="max-width:200px;font-size:.83rem;">${c.description}</td>
+    <td>${c.status==="Resolved"?'<span class="badge bg-green">Resolved</span>':c.status==="Forwarded"?'<span class="badge bg-blue">Forwarded</span>':'<span class="badge bg-yellow">Under Review</span>'}</td>
+    <td style="font-size:.8rem;">${c.date}</td>
+  </tr>`).join("")||`<tr><td colspan="5" style="text-align:center;padding:2rem;color:var(--muted);">No complaints filed yet.</td></tr>`;
+}
+
+// ═══════════════════════════════════════════════════
+//  REVIEWS & FEEDBACK SYSTEM
+// ═══════════════════════════════════════════════════
+
+// Build star HTML for display
+function starsHTML(n){
+  let h="";
+  for(let i=1;i<=5;i++){
+    h+=i<=n?'<i class="fas fa-star"></i>':'<i class="far fa-star empty"></i>';
+  }
+  return h;
+}
+
+// Get average stars for a service
+function avgStars(svcName){
+  const r=S.reviews.filter(x=>x.service===svcName);
+  if(!r.length) return 0;
+  return (r.reduce((a,x)=>a+x.stars,0)/r.length).toFixed(1);
+}
+
+// Render a single review card
+function reviewCardHTML(r){
+  const alreadyLiked    = r.likedBy    && r.likedBy.includes(S.email);
+  const alreadyDisliked = r.dislikedBy && r.dislikedBy.includes(S.email);
+  // Only logged-in customers can click like/dislike; all roles can SEE the counts
+  const canLike = S.role==="customer" && S.email;
+  const likeTitle  = canLike ? "" : 'title="Only customers can react"';
+  const likeStyle  = canLike ? "" : 'style="cursor:default;"';
+  const likeAction = canLike ? `toggleLike('${r.id}','like')`    : 'void(0)';
+  const dislAction = canLike ? `toggleLike('${r.id}','dislike')` : 'void(0)';
+  // Star label text e.g. "5 stars"
+  const starLabel  = ["","1 star","2 stars","3 stars","4 stars","5 stars"][r.stars]||"";
+  return `<div class="review-card" id="rcard-${r.id.replace('#','')}">
+    <div class="review-meta">
+      <span class="review-author"><i class="fas fa-user-circle" style="color:var(--primary);margin-right:4px;"></i>${r.author}</span>
+      <span class="review-svc">${r.service}</span>
+      <span class="review-date">${r.date}</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:6px;margin:.3rem 0;">
+      <div class="stars-display">${starsHTML(r.stars)}</div>
+      <span style="font-size:.75rem;font-weight:600;color:#92400e;">${starLabel}</span>
+    </div>
+    <p class="review-text">${r.text}</p>
+    <div class="like-row">
+      <button class="like-btn ${alreadyLiked?'liked':''}" onclick="${likeAction}" ${likeTitle} ${likeStyle}>
+        👍 <span class="like-count">${r.likes||0}</span>
+      </button>
+      <button class="like-btn ${alreadyDisliked?'disliked':''}" onclick="${dislAction}" ${likeTitle} ${likeStyle}>
+        👎 <span class="like-count">${r.dislikes||0}</span>
+      </button>
+      <span style="font-size:.72rem;color:var(--muted);margin-left:auto;">${r.id}</span>
+    </div>
+  </div>`;
+}
+
+// Render all reviews (public feed) into a container element
+function renderReviews(containerId){
+  const el=document.getElementById(containerId); if(!el) return;
+  if(!S.reviews.length){
+    el.innerHTML=`<div style="text-align:center;padding:2rem;color:var(--muted);font-size:.85rem;"><i class="fas fa-star" style="font-size:2rem;display:block;margin-bottom:.5rem;color:#e2e8f0;"></i>No reviews yet. Be the first to review a service!</div>`;
+    return;
+  }
+  // Group by service for nicer display
+  const grouped={};
+  S.reviews.forEach(r=>{ if(!grouped[r.service]) grouped[r.service]=[]; grouped[r.service].push(r); });
+  // Sort each group newest first
+  Object.values(grouped).forEach(arr=>arr.sort((a,b)=>b.id.localeCompare(a.id)));
+  el.innerHTML=Object.entries(grouped).map(([svc,revs])=>{
+    const avg=avgStars(svc);
+    const totalLikes=revs.reduce((a,r)=>a+(r.likes||0),0);
+    return `<div class="review-section">
+      <h4>
+        <i class="fas fa-tools" style="color:var(--primary);margin-right:5px;"></i>${svc}
+        <span class="stars-display" style="font-size:.82rem;margin-left:6px;">${starsHTML(Math.round(+avg))}</span>
+        <span style="font-size:.75rem;color:var(--muted);font-weight:400;margin-left:4px;">${avg} avg · ${revs.length} review${revs.length>1?'s':''} · 👍 ${totalLikes}</span>
+      </h4>
+      ${revs.map(r=>reviewCardHTML(r)).join("")}
+    </div>`;
+  }).join("");
+}
+
+// Open write review form (customer only)
+window.openReviewForm=function(){
+  // Populate service dropdown from services the customer has actually used
+  const usedServices=[...new Set(S.orders.filter(o=>o.customerEmail===S.email).map(o=>o.service))];
+  const sel=document.getElementById("rev-service");
+  sel.innerHTML=`<option value="">Choose a service you used...</option>`+
+    (usedServices.length
+      ? usedServices.map(s=>`<option value="${s}">${s}</option>`).join("")
+      : S.services.map(s=>`<option value="${s.name}">${s.name}</option>`).join(""));
+  // Reset star input
+  selectedStars=0;
+  document.querySelectorAll("#star-input i").forEach(s=>{s.classList.remove("active");s.classList.replace("fas","far");});
+  document.getElementById("rev-stars").value="0";
+  document.getElementById("rev-text").value="";
+  document.getElementById("review-modal").style.display="flex";
+};
+
+// Star input interaction
+let selectedStars=0;
+document.querySelectorAll("#star-input i").forEach(star=>{
+  star.onmouseenter=function(){
+    const v=+this.getAttribute("data-val");
+    document.querySelectorAll("#star-input i").forEach(s=>{
+      const sv=+s.getAttribute("data-val");
+      s.classList.toggle("fas",sv<=v);
+      s.classList.toggle("far",sv>v);
+      s.classList.toggle("active",sv<=v);
+    });
+  };
+  star.onmouseleave=function(){
+    document.querySelectorAll("#star-input i").forEach(s=>{
+      const sv=+s.getAttribute("data-val");
+      s.classList.toggle("fas",sv<=selectedStars);
+      s.classList.toggle("far",sv>selectedStars);
+      s.classList.toggle("active",sv<=selectedStars);
+    });
+  };
+  star.onclick=function(){
+    selectedStars=+this.getAttribute("data-val");
+    document.getElementById("rev-stars").value=selectedStars;
+    document.querySelectorAll("#star-input i").forEach(s=>{
+      const sv=+s.getAttribute("data-val");
+      s.classList.toggle("fas",sv<=selectedStars);
+      s.classList.toggle("far",sv>selectedStars);
+      s.classList.toggle("active",sv<=selectedStars);
+    });
+  };
+});
+
+// Submit review
+document.getElementById("review-form").onsubmit=function(e){
+  e.preventDefault();
+  const svc=document.getElementById("rev-service").value;
+  const stars=+document.getElementById("rev-stars").value;
+  const text=document.getElementById("rev-text").value.trim();
+  const revErr=document.getElementById("rev-err");
+  revErr.style.display="none";
+  if(!svc){revErr.textContent="Please select a service.";revErr.style.display="block";return;}
+  if(stars===0){revErr.textContent="Please select a star rating (1–5 stars).";revErr.style.display="block";return;}
+  if(!text){revErr.textContent="Please write your review.";revErr.style.display="block";return;}
+  const rid="#REV-"+Math.floor(1000+Math.random()*9000);
+  S.reviews.push({
+    id:rid, service:svc, stars, text,
+    author:S.user, authorEmail:S.email,
+    date:dt(), likes:0, dislikes:0, likedBy:[], dislikedBy:[]
+  });
+  SL("cep_reviews",S.reviews);
+  document.getElementById("review-modal").style.display="none";
+  document.getElementById("review-form").reset();
+  selectedStars=0;
+  renderReviews("reviews-container");
+  // Refresh marketplace so service cards update avg rating
+  renderMarketplace(S.services);
+};
+
+// Like / Dislike toggle
+window.toggleLike=function(rid,type){
+  if(!S.email||S.role!=="customer") return;
+  const r=S.reviews.find(x=>x.id===rid); if(!r) return;
+  if(!r.likedBy)    r.likedBy=[];
+  if(!r.dislikedBy) r.dislikedBy=[];
+  if(type==="like"){
+    if(r.likedBy.includes(S.email)){
+      // un-like
+      r.likedBy=r.likedBy.filter(x=>x!==S.email); r.likes=Math.max(0,r.likes-1);
+    } else {
+      // like (and remove dislike if set)
+      r.likedBy.push(S.email); r.likes++;
+      if(r.dislikedBy.includes(S.email)){ r.dislikedBy=r.dislikedBy.filter(x=>x!==S.email); r.dislikes=Math.max(0,r.dislikes-1); }
+    }
+  } else {
+    if(r.dislikedBy.includes(S.email)){
+      // un-dislike
+      r.dislikedBy=r.dislikedBy.filter(x=>x!==S.email); r.dislikes=Math.max(0,r.dislikes-1);
+    } else {
+      // dislike (and remove like if set)
+      r.dislikedBy.push(S.email); r.dislikes++;
+      if(r.likedBy.includes(S.email)){ r.likedBy=r.likedBy.filter(x=>x!==S.email); r.likes=Math.max(0,r.likes-1); }
+    }
+  }
+  SL("cep_reviews",S.reviews);
+  // Refresh all visible review containers
+  renderReviews("reviews-container");
+  if(document.getElementById("admin-reviews-container")) renderReviews("admin-reviews-container");
+  // Also refresh provider review section if open
+  const provCont=document.getElementById("prov-reviews-container");
+  if(provCont && provCont.children.length>0){
+    const myE=EMPLOYEES.find(e=>e.email===S.email);
+    const mySvc=myE?myE.service:null;
+    const myRevs=mySvc?S.reviews.filter(r=>r.service===mySvc):[];
+    if(myRevs.length) provCont.querySelectorAll(".review-card").forEach(el=>{
+      const rid="#"+el.id.replace("rcard-","REV-");
+      const rev=S.reviews.find(x=>x.id===rid);
+      if(rev) el.outerHTML=reviewCardHTML(rev);
+    });
+  }
+};
+
+window.openSvcDetail=function(name){
+  const s=S.services.find(x=>x.name===name); if(!s) return;
+  const revs=S.reviews.filter(r=>r.service===s.name);
+  const avg=revs.length?(revs.reduce((a,r)=>a+r.stars,0)/revs.length).toFixed(1):null;
+  document.getElementById("svc-m-title").innerText=s.name+" — Details";
+  document.getElementById("svc-m-body").innerHTML=`
+    <div style="font-size:1.15rem;font-weight:700;color:var(--primary);margin-bottom:.6rem;"><i class="fas fa-tag"></i> ${s.price}</div>
+    ${avg?`<div style="display:flex;align-items:center;gap:6px;margin-bottom:.8rem;">
+      <span style="color:#f59e0b;font-size:1rem;">${starsHTML(Math.round(+avg))}</span>
+      <strong>${avg}</strong>
+      <span style="color:var(--muted);font-size:.8rem;">(${revs.length} review${revs.length>1?'s':''})</span>
+    </div>`:''}
+    <p style="line-height:1.6;margin-bottom:1.2rem;">${s.detail}</p>
+    <div style="background:#f8fafc;padding:1rem;border-radius:8px;font-size:.83rem;color:var(--muted);margin-bottom:1.2rem;">
+      <strong style="color:var(--text);">✓ Guaranteed:</strong> Vetted team · Transparent pricing · Follow-up support
+    </div>
+    ${revs.length?`<div style="margin-top:.8rem;">
+      <div style="font-weight:700;font-size:.9rem;margin-bottom:.6rem;"><i class="fas fa-comments" style="color:var(--primary);margin-right:5px;"></i>Customer Reviews</div>
+      ${revs.map(r=>`<div style="border:1px solid var(--border);border-radius:8px;padding:.8rem;margin-bottom:.6rem;background:#fafafa;">
+        <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin-bottom:.3rem;">
+          <strong style="font-size:.83rem;">${r.author}</strong>
+          <span style="color:#f59e0b;font-size:.78rem;">${starsHTML(r.stars)}</span>
+          <span style="font-size:.7rem;color:var(--muted);margin-left:auto;">${r.date}</span>
+        </div>
+        <p style="font-size:.82rem;line-height:1.45;color:var(--text);">${r.text}</p>
+        <div style="display:flex;gap:.6rem;margin-top:.4rem;font-size:.78rem;color:var(--muted);">
+          <span>👍 ${r.likes||0}</span><span>👎 ${r.dislikes||0}</span>
+        </div>
+      </div>`).join("")}
+    </div>`:`<p style="font-size:.83rem;color:var(--muted);">No reviews yet for this service.</p>`}`;
+  document.getElementById("svc-modal").style.display="flex";
+};
+
+window.openBooking=function(name){
+  const s=S.services.find(x=>x.name===name);
+  document.getElementById("b-svc").value=name;
+  document.getElementById("b-price").value=s?s.price:"";
+  document.getElementById("b-name").value=S.user;
+  document.getElementById("book-modal").style.display="flex";
+};
+
+document.getElementById("book-form").onsubmit=async e=>{
+  e.preventDefault();
+  const svc=document.getElementById("b-svc").value, nm=document.getElementById("b-name").value,
+        ph=document.getElementById("b-phone").value, addr=document.getElementById("b-addr").value,
+        pay=document.getElementById("b-pay").value, id="#REQ-"+Math.floor(1000+Math.random()*9000);
+  const assignedEmp = EMPLOYEES.find(e=>e.service===svc);
+  const assignedEmail = assignedEmp ? assignedEmp.email : "provider@cep.com";
+  const order = {id,service:svc,status:"Awaiting Action",date:dt(),name:nm,phone:ph,address:addr,payment:pay,customerEmail:S.email,providerEmail:assignedEmail};
+
+  if(S.role==="customer" && getAuthToken()){
+    try{
+      const data = await api("/api/customers/me/bookings", {
+        method:"POST",
+        body: JSON.stringify({
+          requestId:id, service:svc, phone:ph, address:addr, payment:pay,
+          providerEmail:assignedEmail, name:nm, date:order.date, status:order.status
+        })
+      });
+      if(data.order) Object.assign(order, data.order);
+    }catch(ex){
+      alert("Could not save booking to server: "+ex.message);
+      return;
+    }
+  }
+
+  S.orders.unshift(order);
+  SL("cep_orders",S.orders);
+  S.chats[id]=[{sender:"provider",text:`Hi ${nm}! Thanks for requesting ${svc}. Our expert will assist you shortly. Payment: ${pay}.`,time:ts()}];
+  SL("cep_chats",S.chats);
+  document.getElementById("book-modal").style.display="none";
+  document.getElementById("book-form").reset();
+  renderCustOrders(); renderProviderView(); renderAdminStats();
+  document.getElementById("cust-reqs").scrollIntoView({behavior:"smooth"});
+};
+
+// ═══════════════════════════════════════════════════
+//  CUSTOMER ↔ PROVIDER CHAT
+// ═══════════════════════════════════════════════════
+window.openCustChat=function(oid){
+  const o=S.orders.find(x=>x.id===oid);
+  S.activeChatOrder=oid;
+  document.getElementById("chat-title").innerText=`Chat — ${oid}`;
+  const auth=S.role==="provider"||(S.role==="customer"&&o&&(!o.customerEmail||o.customerEmail===S.email));
+  document.getElementById("chat-blocked").style.display=auth?"none":"block";
+  document.getElementById("chat-form").style.display=auth?"block":"none";
+  renderCustChatHist();
+  document.getElementById("chat-modal").style.display="flex";
+};
+
+function renderCustChatHist(){
+  const msgs=S.chats[S.activeChatOrder]||[];
+  const h=document.getElementById("chat-hist");
+  h.innerHTML=msgs.map(m=>{
+    const mine=m.sender===S.role;
+    return `<div class="bubble ${mine?"sent":"recv"}"><div>${m.text}</div><div class="chat-time">${m.time}</div></div>`;
+  }).join("")||`<div style="text-align:center;color:var(--muted);font-size:.83rem;padding-top:1.5rem;">No messages yet.</div>`;
+  h.scrollTop=h.scrollHeight;
+}
+
+document.getElementById("chat-form").onsubmit=e=>{
+  e.preventDefault();
+  const inp=document.getElementById("chat-inp"), txt=inp.value.trim(); if(!txt) return;
+  const oid=S.activeChatOrder;
+  if(!S.chats[oid]) S.chats[oid]=[];
+  S.chats[oid].push({sender:S.role,text:txt,time:ts()}); SL("cep_chats",S.chats);
+  inp.value=""; renderCustChatHist();
+};
+
+document.getElementById("chat-close-btn").onclick=()=>document.getElementById("chat-modal").style.display="none";
+
+// ═══════════════════════════════════════════════════
+//  COMPLAINTS
+// ═══════════════════════════════════════════════════
+function renderAdminComplaints(){
+  const tb=document.getElementById("complaints-tbody");
+  tb.innerHTML=S.complaints.map(c=>`<tr>
+    <td><strong>${c.id}</strong></td>
+    <td><div style="font-weight:600;">${c.customerName}</div><div style="font-size:.75rem;color:var(--muted);">${c.customerEmail}</div></td>
+    <td>${c.service}</td>
+    <td style="max-width:180px;font-size:.83rem;">${c.description}</td>
+    <td style="font-size:.8rem;">${c.date}</td>
+    <td>${c.status==="Resolved"?'<span class="badge bg-green">Resolved</span>':c.status==="Forwarded"?'<span class="badge bg-blue">Forwarded</span>':'<span class="badge bg-yellow">Open</span>'}</td>
+    <td>${c.status==="Open"?`<button class="btn btn-warn btn-sm" onclick="openFwdModal('${c.id}')"><i class="fas fa-share"></i> Forward</button>`:c.status==="Forwarded"?'<span style="font-size:.78rem;color:var(--muted);">Awaiting provider</span>':'<span style="font-size:.78rem;color:#15803d;">✓ Resolved</span>'}</td>
+  </tr>`).join("")||`<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--muted);">No complaints yet.</td></tr>`;
+}
+
+window.openComplaintForm=function(){
+  const my=S.orders.filter(o=>!o.customerEmail||o.customerEmail===S.email);
+  document.getElementById("cmp-order").innerHTML=my.length?my.map(o=>`<option value="${o.id}">${o.id} — ${o.service}</option>`).join(""):
+    `<option value="">No bookings found</option>`;
+  document.getElementById("cmp-modal").style.display="flex";
+};
+document.getElementById("cmp-form").onsubmit=e=>{
+  e.preventDefault();
+  const oid=document.getElementById("cmp-order").value, desc=document.getElementById("cmp-desc").value.trim();
+  if(!oid||!desc) return;
+  const o=S.orders.find(x=>x.id===oid);
+  S.complaints.push({id:"#CMP-"+Math.floor(1000+Math.random()*9000),orderId:oid,service:o?o.service:"Unknown",
+    customerName:S.user,customerEmail:S.email,description:desc,status:"Open",date:dt(),adminNote:"",resolveNote:"",forwardedOn:""});
+  SL("cep_complaints",S.complaints);
+  document.getElementById("cmp-modal").style.display="none"; document.getElementById("cmp-form").reset();
+  renderCustComplaints(); renderAdminStats();
+};
+
+window.openFwdModal=function(cid){
+  const c=S.complaints.find(x=>x.id===cid); if(!c) return;
+  document.getElementById("fwd-id").value=cid;
+  document.getElementById("fwd-note").value="";
+  document.getElementById("fwd-summary").innerHTML=`<strong>${c.id}</strong> · ${c.service}<br/><span style="color:var(--muted);">${c.customerName} — ${c.description}</span>`;
+  document.getElementById("fwd-modal").style.display="flex";
+};
+window.confirmForward=function(){
+  const cid=document.getElementById("fwd-id").value, note=document.getElementById("fwd-note").value.trim();
+  const c=S.complaints.find(x=>x.id===cid); if(!c) return;
+  c.status="Forwarded"; c.adminNote=note; c.forwardedOn=dt();
+  SL("cep_complaints",S.complaints);
+  document.getElementById("fwd-modal").style.display="none";
+  renderAdminComplaints(); renderAdminStats(); renderProviderComplaints();
+};
+
+window.openResolveModal=function(cid){
+  const c=S.complaints.find(x=>x.id===cid); if(!c) return;
+  document.getElementById("res-id").value=cid; document.getElementById("res-note").value="";
+  document.getElementById("res-summary").innerHTML=`<strong>${c.id}</strong> · ${c.service}<br/><span style="color:var(--muted);">${c.description}</span>${c.adminNote?`<br/><span style="color:#c2410c;font-size:.8rem;">Admin: ${c.adminNote}</span>`:""}`;
+  document.getElementById("res-modal").style.display="flex";
+};
+window.confirmResolve=function(){
+  const cid=document.getElementById("res-id").value, note=document.getElementById("res-note").value.trim();
+  const c=S.complaints.find(x=>x.id===cid); if(!c) return;
+  c.status="Resolved"; c.resolveNote=note||"Resolved by provider.";
+  SL("cep_complaints",S.complaints);
+  document.getElementById("res-modal").style.display="none";
+  renderProviderComplaints(); renderCustComplaints(); renderAdminStats();
+};
+
+// ═══════════════════════════════════════════════════
+//  SEARCH
+// ═══════════════════════════════════════════════════
+document.getElementById("svc-search").oninput=e=>{
+  const v=e.target.value.toLowerCase(), box=document.getElementById("suggest-box");
+  if(!v){box.classList.add("hidden");renderMarketplace(S.services);return;}
+  const m=S.services.filter(s=>s.name.toLowerCase().includes(v));
+  box.innerHTML=m.map(s=>`<div class="suggest-item" onclick="pickSuggest('${s.name}')">${s.name}</div>`).join("");
+  box.classList.toggle("hidden",m.length===0); renderMarketplace(m);
+};
+window.pickSuggest=function(n){
+  document.getElementById("svc-search").value=n; document.getElementById("suggest-box").classList.add("hidden");
+  renderMarketplace(S.services.filter(s=>s.name===n));
+};
+document.addEventListener("click",e=>{if(!document.getElementById("svc-search").contains(e.target))document.getElementById("suggest-box").classList.add("hidden");});
+
+// ═══════════════════════════════════════════════════
+//  SIDEBAR TOGGLE
+// ═══════════════════════════════════════════════════
+document.getElementById("sb-toggle").onclick=()=>{
+  const sb=document.getElementById("main-sidebar");
+  const isHidden=sb.classList.toggle("hidden-sb");
+  sb.classList.toggle("mob-open",!isHidden);
+  document.getElementById("main-cont").classList.toggle("fw",isHidden);
+};
+
+// ═══════════════════════════════════════════════════
+//  CLOSE MODALS
+// ═══════════════════════════════════════════════════
+document.querySelectorAll(".close-btn").forEach(b=>{
+  b.onclick=()=>document.querySelectorAll(".modal-ov").forEach(m=>m.style.display="none");
+});
+document.getElementById("logout-btn").onclick=()=>{ setAuthToken(null); location.reload(); };
+
+console.log("CEP Platform Ready.");
+</script>
+</body>
+</html>
