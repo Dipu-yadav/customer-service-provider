@@ -341,7 +341,7 @@ tr:hover td{background:#fafafa;}
         <form id="admin-login-form">
           <div id="admin-l-err" class="portal-err"></div>
           <label class="plbl" for="admin-l-email">User Name :</label>
-          <input class="p-inp" type="email" id="admin-l-email" placeholder="Enter your E-mail" required autocomplete="username"/>
+          <input class="p-inp" type="email" id="admin-l-email" placeholder="Username@gmail.com" required autocomplete="username"/>
           <label class="plbl" for="admin-l-pass">Password :</label>
           <input class="p-inp" type="password" id="admin-l-pass" placeholder="••••••••" required autocomplete="current-password"/>
           <button type="submit" class="portal-login-btn">Login</button>
@@ -358,7 +358,7 @@ tr:hover td{background:#fafafa;}
         <form id="prov-login-form">
           <div id="prov-l-err" class="portal-err"></div>
           <label class="plbl" for="prov-l-email">User Name :</label>
-          <input class="p-inp" type="email" id="prov-l-email" placeholder="Enter your E-mail" required autocomplete="username"/>
+          <input class="p-inp" type="email" id="prov-l-email" placeholder="Username@gmail.com" required autocomplete="username"/>
           <label class="plbl" for="prov-l-pass">Password :</label>
           <input class="p-inp" type="password" id="prov-l-pass" placeholder="••••••••" required autocomplete="current-password"/>
           <button type="submit" class="portal-login-btn">Login</button>
@@ -375,7 +375,7 @@ tr:hover td{background:#fafafa;}
         <form id="cust-login-form">
           <div id="cust-l-err" class="portal-err"></div>
           <label class="plbl" for="cust-l-email">User Name :</label>
-          <input class="p-inp" type="email" id="cust-l-email" placeholder="Enter your E-mail" required autocomplete="username"/>
+          <input class="p-inp" type="email" id="cust-l-email" placeholder="Username@gmail.com" required autocomplete="username"/>
           <label class="plbl" for="cust-l-pass">Password :</label>
           <input class="p-inp" type="password" id="cust-l-pass" placeholder="••••••••" required autocomplete="current-password"/>
           <button type="submit" class="portal-login-btn">Login</button>
@@ -916,35 +916,35 @@ tr:hover td{background:#fafafa;}
 // ═══════════════════════════════════════════════════
 const EMPLOYEES = [
   { id:"E01", name:"Sujit Shah",     email:"sujit@gmail.com",    phone:"+977-9801234567", service:"Plumber",         photo:"https://ui-avatars.com/api/?name=Sujit+Shah&background=4f46e5&color=fff&size=200",    bio:"5 years experience in residential and commercial plumbing.", status:"online"  },
-  { id:"E02", name:"Rina Magar",     email:"rina@cep.com",     phone:"+977-9812345678", service:"Electrician",     photo:"https://ui-avatars.com/api/?name=Rina+Magar&background=059669&color=fff&size=200",   bio:"Certified electrician with expertise in wiring and installations.", status:"online"  },
-  { id:"E03", name:"Bikash Thapa",   email:"bikash@cep.com",   phone:"+977-9823456789", service:"Cleaning",        photo:"https://ui-avatars.com/api/?name=Bikash+Thapa&background=0369a1&color=fff&size=200", bio:"Professional cleaner specialising in deep cleaning and sanitation.", status:"offline" },
-  { id:"E04", name:"Sunita Rai",     email:"sunita@cep.com",   phone:"+977-9834567890", service:"Gardener",        photo:"https://ui-avatars.com/api/?name=Sunita+Rai&background=16a34a&color=fff&size=200",   bio:"Landscape designer with 7 years of horticulture experience.", status:"online"  },
-  { id:"E05", name:"Dipesh Gurung",  email:"dipesh@cep.com",   phone:"+977-9845678901", service:"Painter",         photo:"https://ui-avatars.com/api/?name=Dipesh+Gurung&background=d97706&color=fff&size=200",bio:"Interior/exterior painting specialist. Meticulous finish guaranteed.", status:"online"  },
-  { id:"E06", name:"Manisha Karki",  email:"manisha@cep.com",  phone:"+977-9856789012", service:"Carpenter",       photo:"https://ui-avatars.com/api/?name=Manisha+Karki&background=7c3aed&color=fff&size=200",bio:"Custom furniture, cabinetry and woodwork expert.", status:"offline" },
-  { id:"E07", name:"Roshan Basnet",  email:"roshan@cep.com",   phone:"+977-9867890123", service:"AC Specialist",   photo:"https://ui-avatars.com/api/?name=Roshan+Basnet&background=c2410c&color=fff&size=200", bio:"HVAC-certified technician for all AC brands.", status:"online"  },
-  { id:"E08", name:"Puja Shrestha",  email:"puja@cep.com",     phone:"+977-9878901234", service:"Pest Control",    photo:"https://ui-avatars.com/api/?name=Puja+Shrestha&background=dc2626&color=fff&size=200", bio:"Licensed pest control specialist. Eco-friendly treatments.", status:"online"  },
-  { id:"E09", name:"Anil Tamang",    email:"anil@cep.com",     phone:"+977-9889012345", service:"Locksmith",       photo:"https://ui-avatars.com/api/?name=Anil+Tamang&background=0369a1&color=fff&size=200",  bio:"Smart lock, deadbolt and emergency lockout specialist.", status:"offline" },
-  { id:"E10", name:"Gita Lama",      email:"gita@cep.com",     phone:"+977-9890123456", service:"Appliance Repair",photo:"https://ui-avatars.com/api/?name=Gita+Lama&background=059669&color=fff&size=200",    bio:"All major home appliance repairs — washing machines, ovens, fridges.", status:"online"  },
-  { id:"E11", name:"Nabin Adhikari", email:"nabin@cep.com",    phone:"+977-9801122334", service:"Roofer",          photo:"https://ui-avatars.com/api/?name=Nabin+Adhikari&background=4f46e5&color=fff&size=200",bio:"Roof repair, waterproofing and gutter specialist.", status:"online"  },
-  { id:"E12", name:"Sabina Khadka",  email:"sabina@cep.com",   phone:"+977-9802233445", service:"Moving Assistant",photo:"https://ui-avatars.com/api/?name=Sabina+Khadka&background=7c3aed&color=fff&size=200",bio:"Professional packing, moving and unpacking services.", status:"online"  }
+  { id:"E02", name:"Rina Magar",     email:"rina@gmail.com",     phone:"+977-9812345678", service:"Electrician",     photo:"https://ui-avatars.com/api/?name=Rina+Magar&background=059669&color=fff&size=200",   bio:"Certified electrician with expertise in wiring and installations.", status:"online"  },
+  { id:"E03", name:"Bikash Thapa",   email:"bikash@gmail.com",   phone:"+977-9823456789", service:"Cleaning",        photo:"https://ui-avatars.com/api/?name=Bikash+Thapa&background=0369a1&color=fff&size=200", bio:"Professional cleaner specialising in deep cleaning and sanitation.", status:"offline" },
+  { id:"E04", name:"Sunita Rai",     email:"sunita@gmail.com",   phone:"+977-9834567890", service:"Gardener",        photo:"https://ui-avatars.com/api/?name=Sunita+Rai&background=16a34a&color=fff&size=200",   bio:"Landscape designer with 7 years of horticulture experience.", status:"online"  },
+  { id:"E05", name:"Dipesh Gurung",  email:"dipesh@gmail.com",   phone:"+977-9845678901", service:"Painter",         photo:"https://ui-avatars.com/api/?name=Dipesh+Gurung&background=d97706&color=fff&size=200",bio:"Interior/exterior painting specialist. Meticulous finish guaranteed.", status:"online"  },
+  { id:"E06", name:"Manisha Karki",  email:"manisha@gmail.com",  phone:"+977-9856789012", service:"Carpenter",       photo:"https://ui-avatars.com/api/?name=Manisha+Karki&background=7c3aed&color=fff&size=200",bio:"Custom furniture, cabinetry and woodwork expert.", status:"offline" },
+  { id:"E07", name:"Roshan Basnet",  email:"roshan@gmail.com",   phone:"+977-9867890123", service:"AC Specialist",   photo:"https://ui-avatars.com/api/?name=Roshan+Basnet&background=c2410c&color=fff&size=200", bio:"HVAC-certified technician for all AC brands.", status:"online"  },
+  { id:"E08", name:"Puja Shrestha",  email:"puja@gmail.com",     phone:"+977-9878901234", service:"Pest Control",    photo:"https://ui-avatars.com/api/?name=Puja+Shrestha&background=dc2626&color=fff&size=200", bio:"Licensed pest control specialist. Eco-friendly treatments.", status:"online"  },
+  { id:"E09", name:"Anil Tamang",    email:"anil@gmail.com",     phone:"+977-9889012345", service:"Locksmith",       photo:"https://ui-avatars.com/api/?name=Anil+Tamang&background=0369a1&color=fff&size=200",  bio:"Smart lock, deadbolt and emergency lockout specialist.", status:"offline" },
+  { id:"E10", name:"Gita Lama",      email:"gita@gmail.com",     phone:"+977-9890123456", service:"Appliance Repair",photo:"https://ui-avatars.com/api/?name=Gita+Lama&background=059669&color=fff&size=200",    bio:"All major home appliance repairs — washing machines, ovens, fridges.", status:"online"  },
+  { id:"E11", name:"Nabin Adhikari", email:"nabin@gmail.com",    phone:"+977-9801122334", service:"Roofer",          photo:"https://ui-avatars.com/api/?name=Nabin+Adhikari&background=4f46e5&color=fff&size=200",bio:"Roof repair, waterproofing and gutter specialist.", status:"online"  },
+  { id:"E12", name:"Sabina Khadka",  email:"sabina@gmail.com",   phone:"+977-9802233445", service:"Moving Assistant",photo:"https://ui-avatars.com/api/?name=Sabina+Khadka&background=7c3aed&color=fff&size=200",bio:"Professional packing, moving and unpacking services.", status:"online"  }
 ];
 
 const defaultUsers = [
   { email:"admin@cep.com",    pass:"password", name:"System Admin",            role:"admin"    },
   { email:"customer@cep.com", pass:"password", name:"Jane Client",             role:"customer" },
   // Employee accounts — each maps to one service
-  { email:"sujit@cep.com",   pass:"password", name:"Sujit Shah",     role:"provider" },
-  { email:"rina@cep.com",    pass:"password", name:"Rina Magar",     role:"provider" },
-  { email:"bikash@cep.com",  pass:"password", name:"Bikash Thapa",   role:"provider" },
-  { email:"sunita@cep.com",  pass:"password", name:"Sunita Rai",     role:"provider" },
+  { email:"sujit@gmail.com",   pass:"password", name:"Sujit Shah",     role:"provider" },
+  { email:"rina@gmail.com",    pass:"password", name:"Rina Magar",     role:"provider" },
+  { email:"bikashgmail.com",  pass:"password", name:"Bikash Thapa",   role:"provider" },
+  { email:"sunita@gmail.com",  pass:"password", name:"Sunita Rai",     role:"provider" },
   { email:"dipesh@cep.com",  pass:"password", name:"Dipesh Gurung",  role:"provider" },
-  { email:"manisha@cep.com", pass:"password", name:"Manisha Karki",  role:"provider" },
-  { email:"roshan@cep.com",  pass:"password", name:"Roshan Basnet",  role:"provider" },
-  { email:"puja@cep.com",    pass:"password", name:"Puja Shrestha",  role:"provider" },
-  { email:"anil@cep.com",    pass:"password", name:"Anil Tamang",    role:"provider" },
-  { email:"gita@cep.com",    pass:"password", name:"Gita Lama",      role:"provider" },
-  { email:"nabin@cep.com",   pass:"password", name:"Nabin Adhikari", role:"provider" },
-  { email:"sabina@cep.com",  pass:"password", name:"Sabina Khadka",  role:"provider" }
+  { email:"manisha@gmail.com", pass:"password", name:"Manisha Karki",  role:"provider" },
+  { email:"roshan@gmail.com",  pass:"password", name:"Roshan Basnet",  role:"provider" },
+  { email:"puja@gmail.com",    pass:"password", name:"Puja Shrestha",  role:"provider" },
+  { email:"anil@gmail.com",    pass:"password", name:"Anil Tamang",    role:"provider" },
+  { email:"gita@gmail.com",    pass:"password", name:"Gita Lama",      role:"provider" },
+  { email:"nabin@gmail.com",   pass:"password", name:"Nabin Adhikari", role:"provider" },
+  { email:"sabina@gmail.com",  pass:"password", name:"Sabina Khadka",  role:"provider" }
 ];
 const defaultOrders = [
   { id:"#REQ-3921", service:"Plumber",     status:"Awaiting Action", date:"May 19, 2026", name:"Jane Client",   phone:"+1 555-0199", address:"782 Spruce Way, NY",  payment:"Cash on Delivery", customerEmail:"customer@cep.com", providerEmail:"sujit@cep.com"  },
