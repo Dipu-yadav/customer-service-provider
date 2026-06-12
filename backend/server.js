@@ -70,6 +70,9 @@
 //   process.exit(1);
 // });
 
+
+
+
 const path = require("path");
 require("dotenv").config({ path: path.join(__dirname, ".env") });
 const { isEmailConfigured, verifyEmailTransport } = require("./utils/email");
