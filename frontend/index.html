@@ -1125,6 +1125,18 @@ document.addEventListener("click",function(e){
   if(!document.getElementById("login-dropdown-wrap").contains(e.target)) closeLoginDropdown();
 });
 
+document.addEventListener("click",function(e){
+  const sb=document.getElementById("main-sidebar");
+  const toggle=document.getElementById("sb-toggle");
+  if(window.innerWidth<=768 && sb.classList.contains("mob-open") &&
+     !sb.contains(e.target) && !toggle.contains(e.target)){
+    sb.classList.remove("mob-open");
+    sb.classList.add("hidden-sb");
+    document.getElementById("main-cont").classList.add("fw");
+  }
+});
+
+
 // ── Portal navigation ──────────────────────────────────────
 document.querySelectorAll("[data-signup]").forEach(el=>{
   el.onclick=()=>{
@@ -2493,13 +2505,28 @@ document.addEventListener("click",e=>{if(!document.getElementById("svc-search").
 // ═══════════════════════════════════════════════════
 //  SIDEBAR TOGGLE
 // ═══════════════════════════════════════════════════
+// document.getElementById("sb-toggle").onclick=()=>{
+//   const sb=document.getElementById("main-sidebar");
+//   const isHidden=sb.classList.toggle("hidden-sb");
+//   sb.classList.toggle("mob-open",!isHidden);
+//   document.getElementById("main-cont").classList.toggle("fw",isHidden);
+// };
+
+
+
 document.getElementById("sb-toggle").onclick=()=>{
   const sb=document.getElementById("main-sidebar");
-  const isHidden=sb.classList.toggle("hidden-sb");
-  sb.classList.toggle("mob-open",!isHidden);
-  document.getElementById("main-cont").classList.toggle("fw",isHidden);
+  const mc=document.getElementById("main-cont");
+  if(sb.classList.contains("mob-open")){
+    sb.classList.remove("mob-open");
+    sb.classList.add("hidden-sb");
+    mc.classList.add("fw");
+  } else {
+    sb.classList.add("mob-open");
+    sb.classList.remove("hidden-sb");
+    mc.classList.remove("fw");
+  }
 };
-
 // ═══════════════════════════════════════════════════
 //  CLOSE MODALS
 // ═══════════════════════════════════════════════════
